@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Questline — RPG personnel</title><meta name="theme-color" content="#06050d">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#06050d;--ink:#f1eeff;--muted:#8f88b8;--line:#2b2358;--v:#8b5cf6;--m:#f43fd8;--c:#22e4ff;--g:#3dffb4;--gold:#ffd35c;--red:#ff4d7d;--cyan:#22e4ff;--violet:#8b5cf6;--green:#3dffb4;--disp:Orbitron,Outfit,system-ui,sans-serif}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{margin:0;color:var(--ink);font:15px/1.45 Outfit,system-ui,-apple-system,sans-serif;background:radial-gradient(60% 40% at 15% 0%,#3b1d8f55,transparent),radial-gradient(50% 40% at 100% 100%,#0e7fa244,transparent),linear-gradient(#ffffff06 1px,transparent 1px) 0 0/28px 28px,linear-gradient(90deg,#ffffff06 1px,transparent 1px) 0 0/28px 28px,var(--bg)}
+button,input,select{font:inherit;color:inherit}button{cursor:pointer}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--c);outline-offset:2px}
+.app{display:flex;flex-direction:column;height:100dvh;position:relative;overflow:hidden}
+
+.topbar{flex:none;display:flex;justify-content:space-between;align-items:center;padding:14px max(18px,calc((100% - 820px)/2)) 8px;background:#06050dcc;backdrop-filter:blur(8px);border-bottom:1px solid #2b2358}
+.brand{display:flex;align-items:center;gap:10px;font:800 14px var(--disp);letter-spacing:.14em}
+.brandmark{width:32px;height:32px;border-radius:10px;background:linear-gradient(135deg,var(--v),var(--m));display:grid;place-items:center;font-style:normal;box-shadow:0 0 18px #f43fd899}
+.chip{border:1px solid #8b5cf6aa;background:#8b5cf622;border-radius:99px;padding:5px 12px;font:600 12px var(--disp);color:var(--c);box-shadow:0 0 14px #22e4ff33}
+.scroll{flex:1;overflow-y:auto;padding:14px max(16px,calc((100% - 820px)/2)) 28px;scrollbar-width:none}.scroll::-webkit-scrollbar{display:none}
+.page{display:none}.page.active{display:block}
+.card{background:var(--card,rgba(24,18,52,.72));background:linear-gradient(160deg,#241a54cc,#120c30cc);border:1px solid #4b36a8;border-radius:22px;box-shadow:inset 0 1px 0 #ffffff14,0 10px 30px #0006,0 0 24px #8b5cf622;backdrop-filter:blur(8px)}
+.btn{border:1px solid #4b36a8;background:#1d1545;padding:10px 15px;border-radius:14px;font-weight:600}
+.btn.primary{border:0;background:linear-gradient(90deg,var(--v),var(--m));box-shadow:0 0 22px #f43fd877;color:#fff;font-weight:700}
+.btn.ghost{background:transparent;padding:6px 0;border:0;color:var(--c)}
+.hero{padding:18px;margin-bottom:12px;overflow:hidden;position:relative}
+.hero::after{content:"";position:absolute;right:-50px;top:-50px;width:180px;height:180px;background:radial-gradient(#f43fd855,transparent 65%);pointer-events:none}
+.profile{display:flex;align-items:center;gap:15px;margin-bottom:16px}
+.avatar{width:84px;height:84px;flex:none;border-radius:26px;display:grid;place-items:center;font-size:40px;overflow:hidden;background:#150e38;border:2px solid var(--c);box-shadow:0 0 0 3px #22e4ff22,0 0 26px #22e4ff77,inset 0 0 18px #8b5cf655}
+.avatar img{width:100%;height:100%;object-fit:cover}
+h1{font:800 clamp(20px,6vw,26px)/1.1 var(--disp);margin:0 0 4px;letter-spacing:.02em}
+.subtitle,.muted,.desc{color:var(--muted)}.subtitle{margin:0 0 8px}
+.level{display:inline-block;background:linear-gradient(90deg,#8b5cf633,#f43fd833);border:1px solid #f43fd8aa;color:#ffb6f0;border-radius:99px;padding:4px 11px;font:600 11px var(--disp)}
+.row{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.small-label{font-size:12px;color:var(--muted);font-weight:500}
+.xpval{font:800 22px var(--disp);color:var(--c);text-shadow:0 0 14px #22e4ff88;margin:6px 0 8px}.xpval .muted{font:500 12px Outfit;text-shadow:none}
+.bar{height:10px;background:#1a1340;border-radius:99px;overflow:hidden;border:1px solid #ffffff10}
+.fill{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--v),var(--m));box-shadow:0 0 12px #f43fd8aa;transition:width .25s}
+#xpBar{background:linear-gradient(90deg,#7c3aed,var(--m),var(--c));box-shadow:0 0 16px #22e4ffaa}
+.mission .fill{background:linear-gradient(90deg,#7c3aed,var(--c))!important;box-shadow:0 0 12px #22e4ff99}
+.xpfoot{font-size:12px;color:var(--muted);margin-top:8px}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.stat{padding:13px 14px;display:flex;align-items:center;gap:11px}
+.stat i{width:38px;height:38px;border-radius:12px;display:grid;place-items:center;font-style:normal;font-size:18px;background:color-mix(in srgb,var(--k) 18%,transparent);color:var(--k);border:1px solid var(--k);box-shadow:0 0 14px color-mix(in srgb,var(--k) 55%,transparent)}
+.stat:nth-child(1){--k:var(--c)}.stat:nth-child(2){--k:var(--g)}.stat:nth-child(3){--k:var(--m)}.stat:nth-child(4){--k:var(--gold)}
+.statlabel{font-size:11.5px;color:var(--muted)}.statval{font:800 19px var(--disp);line-height:1.1}
+.seg{display:flex;background:#0d0826;border:1px solid #3a2a86;border-radius:16px;padding:4px;margin-bottom:12px}
+.segbtn{flex:1;border:0;background:transparent;border-radius:12px;padding:9px;color:var(--muted);font-weight:600}
+.segbtn.active{background:linear-gradient(90deg,#7c3aed,#c026d3);color:#fff;box-shadow:0 0 18px #c026d377}
+.section{padding:16px}.sectionhead,.pagehead{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px}
+.section h2{font-size:17px;margin:0}.desc{font-size:12.5px;margin:2px 0 0}
+.count,.tag{font-size:11px;font-weight:700;padding:4px 10px;border-radius:99px;background:#22e4ff1a;color:var(--c);border:1px solid #22e4ff66;white-space:nowrap}
+.tag.done{background:#3dffb41a;color:var(--g);border-color:#3dffb466}
+.list{display:grid;gap:10px}
+.mission,.project-card{background:#0f0a2a;border:1px solid #3a2a86;border-radius:18px;padding:14px;box-shadow:inset 3px 0 0 var(--v)}
+.mission-title{font-weight:700;font-size:15px}.meta{font-size:12px;color:var(--muted);margin-top:2px}
+.kpi{margin:11px 0 8px;padding:9px 12px;background:#1a1242;border-radius:12px;border:1px solid #ffffff0d}
+.kpi-name{font-size:11.5px;color:var(--muted)}.kpi-val{font:700 14px var(--disp);margin-top:2px}.kpi-val span{color:var(--c)}
+.progressrow{display:flex;align-items:center;gap:9px;margin:8px 0}.progressrow .bar{flex:1}.pct{font:600 11px var(--disp);color:var(--c);min-width:36px;text-align:right}
+.controls{display:flex;align-items:center;gap:8px}
+.step{width:40px;height:34px;border:1px solid #4b36a8;border-radius:11px;background:#1d1545;font-weight:800;font-size:17px}
+.step:active{background:var(--m);box-shadow:0 0 16px var(--m)}
+.steplabel{font-size:12px;color:var(--muted)}
+.skillgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.skill{background:#0f0a2a;border:1px solid #3a2a86;border-radius:18px;padding:14px 10px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:2px}
+.skill-icon{font-size:20px;color:var(--m);text-shadow:0 0 12px var(--m)}.skillname{font-weight:700;margin:2px 0 0}
+.ring{--p:0;width:70px;height:70px;border-radius:50%;margin:8px 0;background:conic-gradient(var(--m) calc(var(--p)*1%),#241d4d 0);display:grid;place-items:center;position:relative;filter:drop-shadow(0 0 8px #f43fd8aa)}
+.ring::before{content:"";position:absolute;inset:7px;border-radius:50%;background:#120d2c}.ring span{position:relative;font:700 13px var(--disp)}
+.skill .controls{margin-top:4px}
+.pagehead{margin:4px 0 14px}.pagehead h1{font-size:22px}.eyebrow{font-size:12.5px;color:var(--m);font-weight:600;margin-bottom:2px}
+.projectgrid{display:grid;gap:12px}.project-card{cursor:pointer}.project-card h3{font-size:16px;margin:0}.project-summary{font-size:12.5px;color:var(--muted);margin:5px 0 10px}
+.project-missions{display:grid;gap:8px;margin-top:10px}.project-mission{border-top:1px solid #2b2358;padding-top:8px}.project-mission strong{font-size:13px}.project-mission .meta{display:flex;justify-content:space-between;gap:8px}
+.project-actions{display:flex;gap:7px;margin-top:12px;flex-wrap:wrap}
+.mini{font-size:12px;padding:7px 11px;border-radius:10px;background:#1d1545;border:1px solid #4b36a8}.danger{color:var(--red);border-color:#ff4d7d66}
+.player-card{padding:15px;cursor:pointer}.player-card.selected{border-color:var(--c);box-shadow:0 0 0 1px var(--c),0 0 28px #22e4ff55}
+.player-card .avatar{width:58px;height:58px;border-radius:18px;font-size:26px}.player-card-top{display:flex;align-items:center;gap:13px}
+.player-choices{display:grid;grid-template-columns:1fr 1fr;gap:8px}.player-choice{display:flex;align-items:center;gap:8px;padding:9px;background:#0d0826;border:1px solid #3a2a86;border-radius:12px;font-size:13px}.player-choice input{accent-color:var(--m)}
+.empty{padding:22px;text-align:center;border:1px dashed #4b36a8;border-radius:16px;color:var(--muted);font-size:13px}
+.tabbar{flex:none;display:grid;grid-template-columns:repeat(3,1fr);padding:8px max(10px,calc((100% - 560px)/2)) calc(10px + env(safe-area-inset-bottom,0px));background:#0a0720ee;border-top:1px solid #3a2a86;box-shadow:0 -10px 30px #8b5cf622}
+.tabbar button{background:transparent;border:0;color:var(--muted);display:flex;flex-direction:column;align-items:center;gap:2px;font-size:11.5px;font-weight:600;padding:6px 0;position:relative}
+.tabbar i{font-style:normal;font-size:21px;line-height:1}
+.tabbar button.active{color:var(--c);text-shadow:0 0 12px var(--c)}
+.tabbar button.active::before{content:"";position:absolute;top:-9px;width:34px;height:3px;border-radius:3px;background:var(--c);box-shadow:0 0 14px var(--c)}
+.backdrop{position:fixed;inset:0;background:#03020acc;display:none;align-items:flex-end;justify-content:center;z-index:10;backdrop-filter:blur(4px)}.backdrop.open{display:flex}
+.modal{width:min(560px,100%);max-height:90vh;overflow:auto;background:linear-gradient(180deg,#1a1042,#0b0722);border:1px solid #6d4be0;border-bottom:0;border-radius:28px 28px 0 0;padding:18px;box-shadow:0 -10px 60px #8b5cf655}
+@media(min-width:600px){.backdrop{align-items:center}.modal{border-radius:28px;border-bottom:1px solid #6d4be0}}
+.modalhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}.modal h2{font:800 16px var(--disp);margin:0}.close{border:0;background:transparent;color:var(--muted);font-size:28px}
+.tabs{display:flex;gap:6px;margin-bottom:14px;overflow-x:auto}.tab{flex:none;background:#0d0826;border:1px solid #3a2a86;border-radius:12px;color:var(--muted);padding:8px 12px;font-size:13px;font-weight:600}.tab.active{color:#fff;background:linear-gradient(90deg,#7c3aed,#c026d3);border-color:transparent}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.field{margin-bottom:10px}.field.full{grid-column:1/-1}
+.field label{display:block;font-size:12px;color:var(--muted);font-weight:500;margin-bottom:4px}
+.field input,.field select{width:100%;padding:11px;background:#0d0826;border:1px solid #3a2a86;border-radius:12px;outline:none}.field input:focus,.field select:focus{border-color:var(--c);box-shadow:0 0 14px #22e4ff44}
+.manage-list{display:grid;gap:7px;margin-top:12px}.manage-row{display:flex;align-items:center;gap:7px;background:#0d0826;border:1px solid #2b2358;border-radius:12px;padding:9px}.manage-info{flex:1;min-width:0}.manage-info strong{font-size:13px;display:block}.manage-info small{font-size:11px;color:var(--muted)}
+.modalfoot{display:flex;justify-content:flex-end;gap:8px;margin-top:14px}
+.toast{position:fixed;bottom:96px;left:50%;transform:translate(-50%,15px);opacity:0;background:linear-gradient(90deg,#7c3aed,#c026d3);color:#fff;padding:10px 16px;border-radius:99px;font-weight:600;font-size:13px;z-index:20;transition:.2s;pointer-events:none;box-shadow:0 0 24px #c026d399}.toast.show{opacity:1;transform:translate(-50%,0)}
+@media(max-width:380px){.grid,.player-choices{grid-template-columns:1fr}.field.full{grid-column:auto}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+.topright{display:flex;align-items:center;gap:8px}.sync{font-size:12px;color:var(--muted)}.sync.ok{color:var(--g)}.sync.busy{color:var(--gold)}.sync.err{color:var(--red)}
+.comment{display:flex;gap:10px;align-items:flex-start;background:#0f0a2a;border:1px solid #2b2358;border-radius:16px;padding:10px 12px}.cav{width:34px;height:34px;flex:none;border-radius:11px;display:grid;place-items:center;overflow:hidden;background:#1d1545;border:1px solid var(--c);font-size:17px}.cav img{width:100%;height:100%;object-fit:cover}.cbody{flex:1;min-width:0}.cbody p{margin:3px 0 0;overflow-wrap:anywhere}.commentform{display:flex;gap:8px;margin-top:12px}.commentform input{flex:1;min-width:0;padding:11px;background:#0d0826;border:1px solid #3a2a86;border-radius:12px;outline:none}.commentform input:focus{border-color:var(--c)}
+.photorow{display:flex;align-items:center;gap:12px}.photorow input[type=file]{font-size:12px;max-width:100%}.photorow .avatar{width:64px;height:64px;border-radius:20px;font-size:28px}
+@media(min-width:700px){.stats{grid-template-columns:repeat(4,1fr)}.projectgrid{grid-template-columns:1fr 1fr}.skillgrid{grid-template-columns:repeat(4,1fr)}}
+@property --p{syntax:"<number>";inherits:false;initial-value:0}
+.fill{transition:width .7s cubic-bezier(.34,1.56,.64,1)}.bar .fill{position:relative;overflow:hidden}
+.fill::after{content:"";position:absolute;inset:0;background:linear-gradient(100deg,transparent 30%,#ffffff77 50%,transparent 70%);transform:translateX(-100%);animation:sweep 2.8s ease-in-out infinite}
+@keyframes sweep{to{transform:translateX(100%)}}
+.ring{transition:--p .9s cubic-bezier(.34,1.56,.64,1)}
+.hero .avatar{animation:float 3.6s ease-in-out infinite}@keyframes float{50%{transform:translateY(-6px) rotate(-2deg)}}
+.page.active{animation:pagein .4s cubic-bezier(.2,1.3,.3,1)}@keyframes pagein{from{opacity:0;transform:translateY(16px) scale(.97)}}
+.tabbar button.active i{animation:tabpop .55s cubic-bezier(.2,1.6,.3,1)}@keyframes tabpop{0%{transform:scale(.6) rotate(-15deg)}60%{transform:scale(1.35) rotate(8deg)}100%{transform:none}}
+.btn,.step,.mini,.segbtn,.tabbar button,.chip{transition:transform .12s,box-shadow .2s,background .2s}
+.btn:active,.step:active,.mini:active,.segbtn:active,.tabbar button:active,button.chip:active{transform:scale(.9)}
+.step:hover{box-shadow:0 0 14px #22e4ff88}
+.pop{animation:cardpop .6s cubic-bezier(.2,1.6,.3,1)}@keyframes cardpop{0%{transform:scale(1)}35%{transform:scale(1.045);box-shadow:0 0 0 2px var(--c),0 0 34px #22e4ffaa}70%{transform:scale(.99)}100%{transform:scale(1)}}
+.nope{animation:nope .4s}@keyframes nope{20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(3px)}}
+.fill.glow{animation:glowp .9s}@keyframes glowp{40%{filter:brightness(1.9) saturate(1.5)}}
+.ring.spin{animation:ringspin .9s cubic-bezier(.2,1.6,.3,1)}@keyframes ringspin{40%{transform:scale(1.25) rotate(14deg);filter:drop-shadow(0 0 20px #22e4ff)}}
+#xpValue,#avgProgress,#doneCount,#activeCount{display:inline-block}
+.bump{animation:bump .55s cubic-bezier(.2,1.8,.3,1)}@keyframes bump{40%{transform:scale(1.35);color:var(--gold)}}
+#xpBar.bump{animation:flash .8s}@keyframes flash{30%{filter:brightness(2) saturate(1.6);box-shadow:0 0 30px #22e4ff}}
+#fx{position:fixed;inset:0;pointer-events:none;z-index:30;overflow:hidden}
+.pt{position:fixed;width:8px;height:8px;border-radius:2px;font-size:16px;line-height:1}
+.ft{position:fixed;font:800 20px Orbitron,sans-serif;text-shadow:0 0 14px currentColor;white-space:nowrap}
+.bn{position:fixed;left:50%;top:36%;font:800 clamp(22px,7vw,38px) Orbitron,sans-serif;color:#fff;text-shadow:0 0 20px #f43fd8,0 0 44px #22e4ff;white-space:nowrap}
+button.chip{color:var(--c);font:600 13px var(--disp);cursor:pointer;line-height:1}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}#fx{display:none}}
+#dashboard{display:none!important}.authsel{max-width:36%;padding:11px 8px;background:#0d0826;border:1px solid #3a2a86;border-radius:12px;color:inherit}
+.modalfoot .danger{margin-right:auto}
+.dlrow{margin:9px 0 0}
+.dl{position:relative;display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:600;padding:5px 11px;border-radius:99px;border:1px solid #4b36a8;background:#1d1545;color:var(--muted);cursor:pointer;overflow:hidden;white-space:nowrap}
+.dl.ok{color:var(--c);border-color:#22e4ff66;background:#22e4ff14}.dl.soon{color:var(--gold);border-color:#ffd35c88;background:#ffd35c18}
+.dl.late{color:var(--red);border-color:#ff4d7d99;background:#ff4d7d1a;animation:latepulse 1.6s infinite}.dl.done{color:var(--g);border-color:#3dffb466;background:#3dffb412}
+.dlin{position:absolute;inset:0;opacity:0;width:100%;height:100%;cursor:pointer}@keyframes latepulse{50%{box-shadow:0 0 16px #ff4d7daa}}
+.dlitem{display:flex;justify-content:space-between;align-items:center;gap:10px;background:#0f0a2a;border:1px solid #2b2358;border-radius:14px;padding:10px 12px;cursor:pointer}.dlitem strong{font-size:14px}
+</style><style>
+/* ===== Questline : couche d'animations ===== */
+.topbar,.scroll,.tabbar{position:relative;z-index:1}
+
+/* barre du haut + progression du scroll */
+.topbar{transition:box-shadow .3s,background .3s}.topbar.scrolled{box-shadow:0 8px 30px #8b5cf644;background:#06050df2}
+#sp{position:absolute;left:0;bottom:-1px;height:2px;width:100%;transform-origin:left;transform:scaleX(var(--sp,0));background:linear-gradient(90deg,var(--v),var(--m),var(--c));box-shadow:0 0 10px var(--c)}
+.brandmark{transition:transform .7s cubic-bezier(.2,1.6,.3,1)}
+.topbar.scrolled .brandmark{transform:rotate(360deg) scale(.88)}
+
+/* icônes : elles gonflent d'abord à l'appui, puis rebondissent au relâché */
+.tabbar button i,.stat i,.skill-icon,.brandmark,button.chip,.step{transition:transform .55s cubic-bezier(.2,2.2,.3,1),box-shadow .2s,background .2s}
+.tabbar button:active{transform:none}
+.tabbar button:active i{transition-duration:.14s;transform:scale(1.6) translateY(-3px)}
+.stat:active i,.skill:active .skill-icon,.brand:active .brandmark{transition-duration:.14s;transform:scale(1.5)}
+.step:active,button.chip:active{transition-duration:.14s;transform:scale(1.3)}
+.btn:active,.mini:active,.segbtn:active{transform:scale(1.06)}
+.skill-icon{display:inline-block}
+.btn,.step,.mini,.segbtn,.tab{position:relative;overflow:hidden}
+.rp{position:absolute;border-radius:50%;background:#fff6;transform:scale(0);pointer-events:none;animation:rp .6s ease-out forwards}@keyframes rp{to{transform:scale(1);opacity:0}}
+.btn.primary::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(100deg,transparent 35%,#ffffff55 50%,transparent 65%);transform:translateX(-120%);animation:sweep 3.6s ease-in-out 1s infinite}
+
+/* barres toujours vivantes */
+.bar .fill::before{content:"";position:absolute;top:0;bottom:0;left:-16px;right:0;background:linear-gradient(135deg,#ffffff30 25%,transparent 25% 50%,#ffffff30 50% 75%,transparent 75%) 0 0/16px 16px;animation:stripes .9s linear infinite}
+@keyframes stripes{to{transform:translateX(16px)}}
+.ring::after{content:"";position:absolute;inset:0;border-radius:50%;pointer-events:none;background:conic-gradient(transparent 0 78%,#ffffffbb 93%,transparent);-webkit-mask:radial-gradient(circle,transparent 56%,#000 58%);mask:radial-gradient(circle,transparent 56%,#000 58%);animation:spinr 2.6s linear infinite}
+@keyframes spinr{to{transform:rotate(1turn)}}
+
+/* cartes : projecteur qui suit le doigt / la souris */
+.project-card,.mission,.skill{background:radial-gradient(200px circle at var(--mx,-999px) var(--my,-999px),#8b5cf633,transparent 70%),#0f0a2a;transition:transform .35s cubic-bezier(.2,1.5,.3,1),border-color .25s,box-shadow .25s}
+@media(hover:hover){.project-card:hover,.mission:hover,.skill:hover{transform:translateY(-3px);border-color:#8b5cf6;box-shadow:inset 3px 0 0 var(--c),0 12px 30px #8b5cf633}}
+
+/* apparition au scroll */
+.rv{opacity:0;transform:translate3d(var(--rx,0),34px,0) scale(.92)}
+.rv.in{opacity:1;transform:none;transition:opacity .6s,transform .85s cubic-bezier(.2,1.4,.3,1)}
+.mission,.comment,.dlitem,.pagehead{--rx:-26px}.projectgrid>:nth-child(odd){--rx:-24px}.projectgrid>:nth-child(even){--rx:24px}.skill{--rx:0px}
+
+/* fenêtres et toast */
+.backdrop.open{animation:fadein .25s}.backdrop.open .modal{animation:modalin .5s cubic-bezier(.2,1.3,.3,1)}
+@keyframes fadein{from{opacity:0}}@keyframes modalin{from{opacity:0;transform:translateY(60px) scale(.94)}}
+.toast{transition:opacity .25s,transform .45s cubic-bezier(.2,1.8,.3,1)}
+
+/* cloche + notifications flottantes */
+#bellBtn{position:relative;padding:5px 10px}
+#bellBtn b{position:absolute;top:-7px;right:-7px;min-width:18px;height:18px;padding:0 4px;border-radius:9px;background:var(--red);color:#fff;font:700 10px/18px Outfit,sans-serif;text-align:center;box-shadow:0 0 12px var(--red);animation:badge 1.6s ease-in-out infinite}
+@keyframes badge{50%{transform:scale(1.25)}}
+#bellBtn[data-n="0"] b{display:none}
+#bellBtn:not([data-n="0"]) span{display:inline-block;transform-origin:50% 0;animation:bell 3s ease-in-out infinite}
+@keyframes bell{0%,55%,100%{transform:none}60%{transform:rotate(22deg)}68%{transform:rotate(-18deg)}76%{transform:rotate(12deg)}84%{transform:rotate(-8deg)}}
+#notifwrap{position:fixed;top:66px;right:14px;width:min(340px,calc(100vw - 28px));z-index:25;display:grid;gap:8px;pointer-events:none}
+#notif{display:grid;gap:8px}
+.nt,#nmore{pointer-events:auto}
+.nt{position:relative;display:flex;gap:10px;align-items:flex-start;padding:11px 12px;border-radius:16px;overflow:hidden;cursor:pointer;background:linear-gradient(160deg,#3a0d2af5,#160a2ef5);border:1px solid #ff4d7d99;box-shadow:0 10px 30px #0008,0 0 22px #ff4d7d44;animation:ntin .65s cubic-bezier(.2,1.5,.3,1) both}
+@keyframes ntin{from{opacity:0;transform:translateX(120%) scale(.8) rotate(4deg)}}
+.nt::after{content:"";position:absolute;left:0;bottom:0;height:2px;width:100%;background:linear-gradient(90deg,transparent,var(--red),transparent);transform:translateX(-100%);animation:sweep 2s linear infinite}
+.nt .ico{font-size:21px;line-height:1;transform-origin:50% 0;animation:bell 2.6s ease-in-out infinite}
+.nt .nbd{flex:1;min-width:0}.nt b{display:block;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.nt small{display:block;font-size:12px;color:#ffb3c6}
+.nt .bar{height:5px;margin-top:7px;border-color:#ff4d7d33}.nt .fill{background:linear-gradient(90deg,#ff4d7d,var(--gold))!important;box-shadow:0 0 10px #ff4d7daa!important}
+.nt .nx{border:0;background:transparent;color:#ffb3c6;font-size:22px;line-height:1;padding:0 2px;transition:transform .5s cubic-bezier(.2,2.2,.3,1)}.nt .nx:active{transition-duration:.14s;transform:scale(1.5)}
+.nt.out{animation:ntout .42s ease-in forwards;pointer-events:none}
+@keyframes ntout{to{opacity:0;transform:translateX(120%) scale(.85)}}
+#nmore{justify-self:end;border:1px solid #ff4d7d88;background:#2a0b22ee;color:#ffb3c6;border-radius:99px;padding:6px 13px;font-size:12px;font-weight:600;animation:ntin .5s cubic-bezier(.2,1.5,.3,1) both}
+#nmore[hidden]{display:none}
+@media(max-width:480px){#notifwrap{right:10px;top:60px}}
+</style><style>
+#skills .controls{display:none}
+#skills .skill{cursor:default}
+#skills .skill::after{content:"🔒";position:absolute;top:8px;right:10px;font-size:11px;opacity:.55}
+#skills .skill{position:relative}
+.collapse{display:grid;grid-template-rows:0fr;opacity:0;transition:grid-template-rows .55s cubic-bezier(.2,1.1,.3,1),opacity .4s}
+.collapse>.collin{overflow:hidden;min-height:0}
+.collapse.open{grid-template-rows:1fr;opacity:1}
+#togglePlayerForm{transition:transform .5s cubic-bezier(.2,2.2,.3,1),box-shadow .2s}
+#togglePlayerForm.on{background:#1d1545;box-shadow:none;border:1px solid #4b36a8}
+</style><style>
+.card{backdrop-filter:none;background:linear-gradient(160deg,#241a54f2,#120c30f2)}
+.topbar{backdrop-filter:none;background:#06050df5}.topbar.scrolled{background:#06050dfa}
+.dl.late{animation:none}
+.bar.off .fill::before,.bar.off .fill::after,.ring.off::after,.btn.primary.off::after{animation-play-state:paused}
+.idle *,.idle *::before,.idle *::after{animation-play-state:paused!important}
+.controls{flex-wrap:wrap}.macts{margin-left:auto;display:flex;gap:6px}.skill .mini{margin-top:6px}
+</style><style>
+.has-c{--mx2:0}
+.mission.has-c{border-color:color-mix(in srgb,var(--mc) 35%,#3a2a86);box-shadow:inset 3px 0 0 var(--mc)}
+.mission.has-c .fill{background:linear-gradient(90deg,color-mix(in srgb,var(--mc) 50%,#1a1340),var(--mc))!important;box-shadow:0 0 12px color-mix(in srgb,var(--mc) 65%,transparent)!important}
+.mission.has-c .kpi-val span,.mission.has-c .pct{color:var(--mc)}
+.mission.has-c .kpi{border-color:color-mix(in srgb,var(--mc) 25%,transparent)}
+.project-mission.has-c{border-left:3px solid var(--mc);padding-left:9px;border-top-color:transparent}
+.skill.has-c{border-color:color-mix(in srgb,var(--mc) 35%,#3a2a86)}
+.skill.has-c .skill-icon{color:var(--mc);text-shadow:0 0 12px var(--mc)}
+.skill.has-c .ring{background:conic-gradient(var(--mc) calc(var(--p)*1%),#241d4d 0);filter:drop-shadow(0 0 8px color-mix(in srgb,var(--mc) 70%,transparent))}
+@media(hover:hover){.mission.has-c:hover{border-color:var(--mc);box-shadow:inset 3px 0 0 var(--mc),0 12px 30px color-mix(in srgb,var(--mc) 28%,transparent)}.skill.has-c:hover{border-color:var(--mc);box-shadow:0 12px 30px color-mix(in srgb,var(--mc) 28%,transparent)}}
+.swatches{display:flex;flex-wrap:wrap;gap:10px;padding:5px 3px}
+.sw{width:30px;height:30px;border-radius:50%;border:2px solid #ffffff22;background:var(--c);box-shadow:0 0 10px color-mix(in srgb,var(--c) 55%,transparent);padding:0;margin:0;position:relative;display:block;cursor:pointer;transition:transform .45s cubic-bezier(.2,2.2,.3,1),box-shadow .2s}
+.sw.on{transform:scale(1.18);border-color:#fff;box-shadow:0 0 0 2px #0b0722,0 0 0 4px var(--c),0 0 16px var(--c)}
+.sw:active{transition-duration:.12s;transform:scale(1.35)}
+.sw.custom{background:conic-gradient(#ff4d7d,#ffd35c,#3dffb4,#22e4ff,#8b5cf6,#ff4d7d)}.sw.custom.on{background:var(--c)}
+.sw.custom input{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;padding:0;border:0}
+</style></head>
+<body><div class="app">
+<header class="topbar"><div class="brand"><i class="brandmark">✦</i>QUESTLINE</div><div class="topright"><button class="chip" id="bellBtn" data-n="0" aria-label="Missions en retard" title="Missions en retard"><span>🔔</span><b id="bellN">0</b></button><button class="chip" id="sndBtn" aria-label="Activer ou couper le son">🔊</button><span class="sync" id="sync">☁ Local</span></div><div id="sp"></div></header>
+<main class="scroll" id="scroll">
+<section class="page" id="dashboard">
+ <div class="card hero"><div class="profile"><div class="avatar" id="avatar">🧙</div><div><h1 id="playerName">Alexandre</h1><p class="subtitle" id="playerTitle">Architecte de possibilités</p><span class="level">LV <span id="level">12</span> · <span id="rank">ÉCLAIREUR</span></span></div></div>
+ <div class="row small-label"><span>Expérience globale</span><span id="xpLabel">72%</span></div><div class="xpval"><span id="xpValue">7 200</span> <span class="muted">/ 10 000 XP</span></div><div class="bar"><div class="fill" id="xpBar" style="width:72%"></div></div><div class="xpfoot" id="xpRemain"></div></div>
+ <div class="stats"><div class="card stat"><i>⚔</i><div><div class="statlabel">Missions actives</div><div class="statval" id="activeCount">0</div></div></div><div class="card stat"><i>✓</i><div><div class="statlabel">Terminées</div><div class="statval" id="doneCount">0</div></div></div><div class="card stat"><i>✧</i><div><div class="statlabel">Compétences</div><div class="statval" id="skillCount">0</div></div></div><div class="card stat"><i>◔</i><div><div class="statlabel">Progression</div><div class="statval" id="avgProgress">0%</div></div></div></div>
+ <div class="seg"><button class="segbtn active" data-seg="segM">Missions</button><button class="segbtn" data-seg="segS">Compétences</button></div>
+ <section class="card section seg-panel" id="segM"><div class="sectionhead"><div><h2>Missions</h2><p class="desc">Objectifs, KPI et responsables</p></div><span class="count" id="missionCount">0 QUÊTE</span></div><div class="list" id="missions"></div></section>
+ 
+</section>
+<section class="page active" id="projects"><div class="pagehead"><div><div class="eyebrow">Gestion opérationnelle</div><h1>Mes projets</h1></div><button class="btn primary" id="addProjectOpen">＋ Projet</button></div><div class="card section" id="dlBox" style="margin-bottom:12px;display:none"><div class="sectionhead"><div><h2>Prochaines deadlines</h2><p class="desc">Missions à échéance, les plus urgentes d’abord</p></div><span class="count" id="dlCount">0</span></div><div class="list" id="dlList"></div></div>
+<div class="projectgrid" id="projectGrid"></div></section>
+<section class="page" id="players">
+ <div class="pagehead"><div><div class="eyebrow">Équipe et personnages</div><h1>Gladiateurs</h1></div><span class="count" id="playerCount">0 GLADIATEUR</span></div>
+ <div class="projectgrid" id="playerGrid" style="margin-bottom:14px"></div>
+ <section class="card section" id="segS" style="margin-bottom:14px"><div class="sectionhead"><div><h2>Compétences de l’équipe</h2><p class="desc">Moyenne de toute l’équipe · lecture seule</p></div><span class="count" id="skillCountBadge">0 SKILLS</span></div><div class="skillgrid" id="skills"></div></section>
+ <div class="card section" id="newPlayerCard"><button class="btn primary" id="togglePlayerForm" aria-expanded="false" aria-controls="newPlayerForm" style="width:100%">＋ Ajouter un gladiateur</button>
+ <div class="collapse" id="newPlayerForm"><div class="collin"><div class="sectionhead" style="margin-top:14px"><div><h2>Nouveau gladiateur</h2><p class="desc">Nom, titre et avatar propres à chaque joueur</p></div></div>
+  <div class="grid"><div class="field"><label>Nom</label><input id="newPlayerName" placeholder="Ex. Alexandre"></div><div class="field"><label>Titre</label><input id="newPlayerTitle" placeholder="Ex. Maître stratège"></div><div class="field"><label>Emoji avatar</label><input id="newPlayerEmoji" maxlength="4" value="🧙"></div><div class="field full"><label>Photo de profil (optionnel)</label><input id="newPlayerPhoto" type="file" accept="image/*"></div></div>
+  <div class="modalfoot" style="justify-content:flex-start"><button class="btn primary" id="createPlayer">＋ Créer le gladiateur</button><button class="btn" id="cancelPlayerForm">Annuler</button></div></div></div></div>
+</section>
+<section class="page" id="memberDetail">
+ <div class="pagehead"><div><button class="btn ghost" id="backToPlayers">← Toute l’équipe</button><div class="profile" style="margin:8px 0 0"><div class="avatar" id="mbAvatar" style="width:64px;height:64px;border-radius:20px;font-size:30px"></div><div><h1 id="mbName" style="margin:0"></h1><p class="desc" id="mbTitle"></p></div></div></div><div style="display:flex;gap:8px"><button class="btn" id="mbEdit" aria-label="Modifier le membre">⚙</button><button class="btn danger" id="mbDelete" aria-label="Supprimer le gladiateur">🗑</button></div></div>
+ <div class="stats" id="mbStats"></div>
+ <section class="card section" style="margin-bottom:12px"><div class="sectionhead"><div><h2>Missions</h2><p class="desc">Triées par urgence : échéance et progression</p></div><button class="btn primary" id="mbAddMission">＋ Mission</button></div><div class="list" id="mbMissions"></div></section>
+ <section class="card section"><div class="sectionhead"><div><h2>Compétences</h2><p class="desc">Niveau personnel de ce membre</p></div><button class="btn primary" id="mbAddSkill">＋ Compétence</button></div><div class="skillgrid" id="mbSkills"></div></section>
+</section>
+<section class="page" id="projectDetail">
+ <div class="pagehead"><div><button class="btn ghost" id="backToProjects">← Tous les projets</button><h1 id="detailProjectName">Projet</h1><p class="desc" id="detailProjectDesc"></p></div><button class="btn" id="detailEditProject">⚙</button></div>
+ <div class="card section" style="margin-bottom:12px"><div class="row"><div><div class="small-label">Progression du projet</div><div class="xpval" id="detailProjectProgress">0%</div></div><span class="count" id="detailMissionCount">0 MISSION</span></div><div class="bar"><div class="fill" id="detailProjectBar" style="width:0%"></div></div></div>
+ <section class="card section"><div class="sectionhead"><div><h2>Missions du projet</h2><p class="desc">Triées par urgence : échéance et progression</p></div></div><div class="list" id="detailMissions"></div></section>
+ <section class="card section" style="margin-top:12px"><div class="sectionhead"><div><h2>Commentaires</h2><p class="desc">Notes et échanges sur ce projet</p></div><span class="count" id="commentCount">0</span></div><div class="list" id="commentList"></div><div class="commentform"><select id="commentAuthor" class="authsel" aria-label="Auteur"></select><input id="commentText" placeholder="Écrire un commentaire…" maxlength="500"><button class="btn primary" id="addComment">Envoyer</button></div></section>
+</section>
+</main>
+<nav class="tabbar"><button class="navbtn active" data-page="projects"><i>▦</i>Projets</button><button class="navbtn" data-page="players"><i>♟</i>Équipe</button><button id="editBtn"><i>⚙</i>Réglages</button></nav>
+</div>
+
+<div class="backdrop" id="backdrop"><div class="modal"><div class="modalhead"><h2 id="modalTitle">Modifier le système</h2><button class="close" id="closeModal">×</button></div>
+<div class="tabs"><button class="tab active" data-tab="profileTab">Profil</button><button class="tab" data-tab="missionTab">Missions & KPI</button><button class="tab" data-tab="skillTab">Compétences</button><button class="tab" data-tab="projectTab">Projets</button></div>
+<div id="profileTab" class="panel"><div class="grid"><div class="field"><label>Nom du gladiateur</label><input id="editName"></div><div class="field"><label>Titre</label><input id="editTitle"></div><div class="field"><label>Emoji avatar</label><input id="editEmoji" maxlength="4"></div><div class="field full"><label>Photo de profil</label><div class="photorow"><div class="avatar" id="editPreview"></div><div><input id="editPhoto" type="file" accept="image/*"><button class="mini danger" id="editPhotoClear" type="button" style="margin-top:6px">Retirer la photo</button><button class="mini danger" id="deletePlayer" type="button" style="margin-top:6px;margin-left:6px">Supprimer le joueur</button></div></div></div></div></div>
+<div id="missionTab" class="panel" style="display:none">
+ <div class="grid">
+  <div class="field"><label>Nom de la mission</label><input id="mName" placeholder="Ex. Signer 5 nouveaux clients"></div>
+  <div class="field"><label>Projet associé</label><select id="mProject" required></select></div>
+  <div class="field"><label>Responsable</label><input id="mOwner" placeholder="Nom du responsable"></div>
+  <div class="field"><label>Catégorie</label><input id="mCategory" placeholder="Commercial, produit..."></div>
+  <div class="field"><label>Nom du KPI</label><input id="mKpi" placeholder="Ex. Clients signés"></div>
+  <div class="field"><label>Unité du KPI</label><input id="mUnit" placeholder="clients, €, %, heures..."></div>
+  <div class="field"><label>Valeur actuelle</label><input id="mCurrent" type="number" min="0" value="0"></div>
+  <div class="field"><label>Cible à atteindre</label><input id="mTarget" type="number" min="1" value="10"></div>
+  <div class="field"><label>Pas de progression (+ / −)</label><input id="mStep" type="number" min="0.01" step="any" value="1"></div>
+  <div class="field"><label>Deadline</label><input id="mDeadline" type="date"></div><div class="field"><label>Statut</label><select id="mStatus"><option value="active">En cours</option><option value="done">Terminée</option></select></div>
+ </div><button class="btn primary" id="addMission">＋ Ajouter la mission</button><div class="manage-list" id="manageMissions"></div>
+</div>
+<div id="skillTab" class="panel" style="display:none"><div class="grid"><div class="field"><label>Nom compétence</label><input id="sName" placeholder="Leadership"></div><div class="field"><label>Icône</label><input id="sIcon" placeholder="✦"></div><div class="field"><label>Rang</label><input id="sRank" placeholder="Avancé"></div><div class="field"><label>Maîtrise (%)</label><input id="sProgress" type="number" min="0" max="100" value="0"></div></div><button class="btn primary" id="addSkill">＋ Ajouter compétence</button><div class="manage-list" id="manageSkills"></div></div>
+<div id="projectTab" class="panel" style="display:none"><div class="grid"><div class="field full"><label>Nom du projet</label><input id="pName" placeholder="Ex. Expansion commerciale"></div><div class="field full"><label>Description</label><input id="pDesc" placeholder="Objectif ou résultat attendu"></div><div class="field full"><label>Gladiateur(s) assigné(s) au projet</label><div id="projectPlayerChoices" class="player-choices"></div></div></div><button class="btn primary" id="addProject">＋ Ajouter le projet</button><div class="manage-list" id="manageProjects"></div></div>
+<div class="modalfoot"><button class="btn" id="closeFooter">Fermer</button><button class="btn primary" id="saveProfile">Enregistrer le profil</button></div>
+</div></div><div class="backdrop" id="pbackdrop" style="z-index:11"><div class="modal"><div class="modalhead"><h2>Modifier le projet</h2><button class="close" id="pClose" aria-label="Fermer">×</button></div>
+<div class="field"><label>Nom du projet</label><input id="pEditName"></div><div class="field"><label>Description</label><input id="pEditDesc"></div>
+<div class="field"><label>Gladiateur(s) assigné(s)</label><div id="pEditPlayers" class="player-choices"></div></div>
+<div class="modalfoot"><button class="mini danger" id="pDelete">Supprimer</button><button class="btn" id="pCancel">Annuler</button><button class="btn primary" id="pSave">Enregistrer</button></div></div></div>
+<div class="backdrop" id="nmBackdrop" style="z-index:11"><div class="modal"><div class="modalhead"><h2 id="nmTitle">Nouvelle mission</h2><button class="close" data-close="nmBackdrop" aria-label="Fermer">×</button></div>
+<div class="grid"><div class="field full"><label>Nom de la mission</label><input id="nmName" placeholder="Ex. Signer 5 nouveaux clients"></div><div class="field full"><label>Projet</label><select id="nmProject"></select></div><div class="field"><label>Responsable</label><input id="nmOwner" placeholder="Nom du responsable"></div><div class="field"><label>Statut</label><select id="nmStatus"><option value="active">En cours</option><option value="done">Terminée</option></select></div><div class="field"><label>Catégorie</label><input id="nmCat" placeholder="Commercial, produit..."></div><div class="field"><label>Deadline</label><input id="nmDeadline" type="date"></div><div class="field full"><label>Couleur dominante</label><div class="swatches" id="nmSw" role="radiogroup" aria-label="Couleur de la mission"></div></div><div class="field"><label>Nom du KPI</label><input id="nmKpi" placeholder="Ex. Clients signés"></div><div class="field"><label>Unité</label><input id="nmUnit" placeholder="clients, €, %..."></div><div class="field"><label>Valeur actuelle</label><input id="nmCur" type="number" min="0" value="0"></div><div class="field"><label>Cible</label><input id="nmTarget" type="number" min="1" value="10"></div><div class="field full"><label>Pas de progression (+ / −)</label><input id="nmStep" type="number" min="0.01" step="any" value="1"></div></div>
+<div class="modalfoot"><button class="btn" data-close="nmBackdrop">Annuler</button><button class="btn primary" id="nmSave">Créer la mission</button></div></div></div>
+<div class="backdrop" id="nsBackdrop" style="z-index:11"><div class="modal"><div class="modalhead"><h2 id="nsTitle">Nouvelle compétence</h2><button class="close" data-close="nsBackdrop" aria-label="Fermer">×</button></div>
+<div class="grid"><div class="field full" id="nsPickRow"><label>Compétence</label><select id="nsPick"></select></div><div class="field nsf"><label>Nom</label><input id="nsName" placeholder="Leadership"></div><div class="field nsf"><label>Icône</label><input id="nsIcon" placeholder="✦" maxlength="4"></div><div class="field nsf"><label>Rang</label><input id="nsRank" placeholder="Avancé"></div><div class="field full nsf"><label>Couleur dominante</label><div class="swatches" id="nsSw" role="radiogroup" aria-label="Couleur de la compétence"></div></div><div class="field"><label id="nsLevelLabel">Niveau de départ (%)</label><input id="nsLevel" type="number" min="0" max="100" value="0"></div></div>
+<p class="desc" id="nsHint">La compétence est ajoutée à toute l’équipe : les autres membres démarrent à 0 %.</p>
+<div class="modalfoot"><button class="btn" data-close="nsBackdrop">Annuler</button><button class="btn primary" id="nsSave">Ajouter la compétence</button></div></div></div>
+<input type="file" id="photoInput" accept="image/*" hidden><div id="notifwrap"><div id="notif" aria-live="polite"></div><button id="nmore" hidden></button></div><div class="toast" id="toast"></div>
+
+<script>
+const defaults={
+ profile:{name:"Alexandre",title:"Architecte de possibilités",avatar:"",emoji:"🧙",level:12,rank:"ÉCLAIREUR"},
+ projects:[
+  {id:101,name:"Développement commercial",desc:"Accélérer l'acquisition et les ventes.",visible:true},
+  {id:102,name:"Développement personnel",desc:"Renforcer les capacités et les habitudes.",visible:true}
+ ],
+ missions:[
+  {id:1,name:"Signer de nouveaux clients",projectId:101,owner:"Sarah",cat:"Commercial",kpi:"Clients signés",unit:"clients",current:3,target:10,step:1,status:"active",visible:true},
+  {id:2,name:"Publier la nouvelle offre",projectId:101,owner:"Alexandre",cat:"Marketing",kpi:"Éléments publiés",unit:"éléments",current:4,target:8,step:1,status:"active",visible:true},
+  {id:3,name:"Lire et appliquer",projectId:102,owner:"Alexandre",cat:"Apprentissage",kpi:"Chapitres appliqués",unit:"chapitres",current:5,target:10,step:1,status:"active",visible:true},
+  {id:4,name:"Planifier la semaine",projectId:102,owner:"Alexandre",cat:"Organisation",kpi:"Semaines planifiées",unit:"semaines",current:4,target:4,step:1,status:"done",visible:true}
+ ],
+ skills:[
+  {id:11,name:"Stratégie",icon:"♟",rank:"Expert",progress:82,visible:true},
+  {id:12,name:"Leadership",icon:"⚔",rank:"Avancé",progress:68,visible:true},
+  {id:13,name:"Communication",icon:"✧",rank:"Avancé",progress:56,visible:true},
+  {id:14,name:"Discipline",icon:"◈",rank:"En progression",progress:42,visible:true}
+ ]
+};
+let data;try{data=JSON.parse(localStorage.getItem("questlineSaveV2"))||structuredClone(defaults)}catch(e){data=structuredClone(defaults)}
+if(!Array.isArray(data.players)||!data.players.length){
+ const p=data.profile||structuredClone(defaults.profile);
+ data.players=[{id:Date.now(),name:p.name||"Joueur",title:p.title||"Aventurier",avatar:p.avatar||"",emoji:p.emoji||"🧙"}];
+}
+if(!data.activePlayerId)data.activePlayerId=data.players[0].id;
+if(!data.players.some(p=>p.id==data.activePlayerId))data.activePlayerId=data.players[0].id;
+(data.projects||[]).forEach(p=>{if(!Array.isArray(p.playerIds))p.playerIds=[data.players[0].id]});
+
+// Migration des anciennes données Questline pour conserver le profil et les compétences.
+if(!data.projects){data.projects=structuredClone(defaults.projects);data.missions=(data.missions||[]).map((m,i)=>({...m,projectId:101,owner:"À attribuer",kpi:"Progression",unit:"%",current:m.progress||0,target:100,step:5}))}
+if(!Array.isArray(data.comments))data.comments=[];if(!data.missions)data.missions=[];if(!data.skills)data.skills=[];if(!data.profile)data.profile=structuredClone(defaults.profile);
+const $=id=>document.getElementById(id),save=()=>{localStorage.setItem("questlineSaveV2",JSON.stringify(data));clearTimeout(window._st);window._st=setTimeout(()=>sbPush(),500)};
+const clamp=(n,min=0,max=100)=>Math.max(min,Math.min(max,Number(n)||0));
+const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const pct=m=>m.target>0?clamp(m.current/m.target*100):0;
+const projectName=id=>data.projects.find(p=>p.id==id)?.name||"Projet non défini";
+const activePlayer=()=>data.players.find(p=>p.id==data.activePlayerId)||data.players[0];
+const playerNames=ids=>(ids||[]).map(id=>data.players.find(p=>p.id==id)?.name).filter(Boolean).join(", ")||"Aucun joueur";
+function toast(t){$("toast").textContent=t;$("toast").classList.add("show");setTimeout(()=>$("toast").classList.remove("show"),1600)}
+function render(){
+ const p=activePlayer();data.profile={...data.profile,name:p.name,title:p.title,avatar:p.avatar,emoji:p.emoji};$("playerName").textContent=p.name;$("playerTitle").textContent=p.title;$("level").textContent=p.level||1;$("rank").textContent=p.rank||"NOVICE";
+ $("avatar").innerHTML=p.avatar?`<img src="${esc(p.avatar)}" onerror="this.parentElement.textContent='${esc(p.emoji||"🧙")}'">`:esc(p.emoji||"🧙");
+ const ms=data.missions.filter(m=>m.visible!==false),ss=data.skills.filter(s=>s.visible!==false&&(!s.levels||Object.keys(s.levels).length));
+ const avg=ms.length?ms.reduce((a,m)=>a+pct(m),0)/ms.length:0;const xp=Math.round(avg*100);
+ $("xpValue").textContent=(xp*100).toLocaleString("fr-FR");$("xpLabel").textContent=xp+"%";$("xpBar").style.width=xp+"%";$("xpRemain").textContent=(100-xp)*100+" XP avant le prochain niveau";
+ $("activeCount").textContent=ms.filter(m=>m.status!=="done"&&pct(m)<100).length;$("doneCount").textContent=ms.filter(m=>m.status==="done"||pct(m)>=100).length;$("skillCount").textContent=ss.length;
+ const total=[...ms.map(pct),...ss.map(s=>s.progress)];$("avgProgress").textContent=Math.round(total.reduce((a,b)=>a+b,0)/Math.max(1,total.length))+"%";
+ $("missionCount").textContent=ms.length+" QUÊTES";$("skillCountBadge").textContent=ss.length+" SKILLS";
+ $("missions").innerHTML=ms.length?ms.map(m=>`<article class="mission${m.color?" has-c":""}"${m.color?` style="--mc:${esc(m.color)}"`:""}><div class="row"><div><div class="mission-title">${esc(m.name)}</div><div class="meta">${esc(projectName(m.projectId))} · ${esc(m.cat||"Mission")} · Responsable : ${esc(m.owner||"À attribuer")}</div></div><span class="tag ${pct(m)>=100||m.status==="done"?"done":""}">${pct(m)>=100||m.status==="done"?"TERMINÉE":"EN COURS"}</span></div><div class="dlrow">${dlChip(m)}</div><div class="kpi"><div class="kpi-name">KPI · ${esc(m.kpi||"Progression")}</div><div class="kpi-val"><span>${esc(m.current)}</span> / ${esc(m.target)} ${esc(m.unit||"")}</div></div><div class="progressrow"><div class="bar"><div class="fill" style="width:${pct(m)}%;background:linear-gradient(90deg,#42bcb7,var(--cyan))"></div></div><span class="pct">${Math.round(pct(m))}%</span></div><div class="controls"><button class="step" data-update="mission" data-id="${m.id}" data-dir="-1">−</button><button class="step" data-update="mission" data-id="${m.id}" data-dir="1">+</button><span class="steplabel">± ${esc(m.step)} ${esc(m.unit||"unités")}</span><span class="macts"><button class="mini" data-edit-mission="${m.id}">✎ Modifier</button><button class="mini danger" data-del-mission="${m.id}">Supprimer</button></span></div></article>`).join(""):'<div class="empty">Aucune mission visible. Ajoute-en depuis Modifier → Missions & KPI.</div>';
+ $("skills").innerHTML=ss.length?ss.map(s=>`<article class="skill${s.color?" has-c":""}"${s.color?` style="--mc:${esc(s.color)}"`:""}><div class="skill-icon">${esc(s.icon||"✦")}</div><div class="skillname">${esc(s.name)}</div><div class="meta">${esc(s.rank||"En progression")}</div><div class="ring" style="--p:${clamp(s.progress)}"><span>${clamp(s.progress)}%</span></div><div class="controls"><button class="step" data-update="skill" data-id="${s.id}" data-dir="-1">−</button><button class="step" data-update="skill" data-id="${s.id}" data-dir="1">+</button><span class="steplabel">±5%</span></div></article>`).join(""):'<div class="empty">Aucune compétence visible.</div>';
+ renderProjects();renderManage();renderPlayers();renderDeadlines();
+}
+function renderPlayers(){
+ const ps=data.players||[];
+ $("playerCount").textContent=ps.length+" GLADIATEUR"+(ps.length>1?"S":"");
+ $("playerGrid").innerHTML=ps.map(p=>`<article class="card player-card ${p.id==data.activePlayerId?"selected":""}" data-open-member="${p.id}" role="button" tabindex="0"><div class="player-card-top"><div class="avatar">${p.avatar?`<img src="${esc(p.avatar)}" onerror="this.parentElement.textContent='${esc(p.emoji||"🧙")}'">`:esc(p.emoji||"🧙")}</div><div><h3 style="margin:0">${esc(p.name)}</h3><div class="meta">${esc(p.title||"Aventurier")}</div><div class="tag" data-select-player="${p.id}" style="display:inline-block;margin-top:7px;cursor:pointer">${p.id==data.activePlayerId?"Auteur par défaut":"Définir par défaut"}</div><button class="mini" data-edit-player="${p.id}" style="margin-left:6px">✎ Modifier</button><button class="mini" data-photo="${p.id}" style="margin-left:6px">📷 Photo</button><button class="mini danger" data-del-player="${p.id}" style="margin-left:6px">Supprimer</button></div></div></article>`).join("")||'<div class="empty">Aucun joueur créé.</div>';
+}
+function renderProjects(){
+ const ps=data.projects.filter(p=>p.visible!==false);
+ $("projectGrid").innerHTML=ps.length?ps.map(p=>{const ms=data.missions.filter(m=>m.projectId==p.id&&m.visible!==false);const progress=ms.length?Math.round(ms.reduce((a,m)=>a+pct(m),0)/ms.length):0;return `<article class="project-card" data-open-project="${p.id}" role="button" tabindex="0" style="cursor:pointer"><div class="row"><h3>▦ ${esc(p.name)}</h3><span class="tag">${ms.length} MISSION${ms.length>1?"S":""}</span></div><p class="project-summary">${esc(p.desc||"Aucune description")}<br>♟ Joueurs : ${esc(playerNames(p.playerIds))}</p><div class="progressrow"><div class="bar"><div class="fill" style="width:${progress}%"></div></div><span class="pct">${progress}%</span></div><div class="project-missions">${ms.length?ms.map(m=>`<div class="project-mission${m.color?" has-c":""}"${m.color?` style="--mc:${esc(m.color)}"`:""}><strong>${esc(m.name)}</strong><div class="meta"><span>Resp. : ${esc(m.owner||"À attribuer")}${m.deadline&&!(m.status==="done"||pct(m)>=100)?" · 📅 "+esc(dlInfo(m).t):""}</span><span>${esc(m.current)} / ${esc(m.target)} ${esc(m.unit||"")} · ${Math.round(pct(m))}%</span></div></div>`).join(""):'<div class="meta">Aucune mission associée pour le moment.</div>'}</div><div class="project-actions"><button class="mini" data-open-project="${p.id}">Missions et commentaires (${(data.comments||[]).filter(c=>c.projectId==p.id).length})</button><button class="mini" data-edit-project="${p.id}">Modifier</button></div></article>`}).join(""):'<div class="empty">Aucun projet. Crée ton premier projet avec « Nouveau projet ».</div>';
+}
+function renderManage(){
+ $("mProject").innerHTML=data.projects.map(p=>`<option value="${p.id}">${esc(p.name)}</option>`).join("") || '<option value="">Crée d’abord un projet</option>';$("mProject").disabled=!data.projects.length;
+ $("manageMissions").innerHTML=data.missions.map(m=>`<div class="manage-row"><div class="manage-info"><strong>${esc(m.name)}</strong><small>${esc(projectName(m.projectId))} · ${esc(m.owner||"À attribuer")} · ${Math.round(pct(m))}%${m.deadline?" · 📅 "+esc(dlInfo(m).t):""}</small></div><button class="mini" data-toggle="mission" data-id="${m.id}">${m.visible===false?"Afficher":"Masquer"}</button><button class="mini danger" data-delete="mission" data-id="${m.id}">Supprimer</button></div>`).join("")||'<div class="empty">Aucune mission.</div>';
+ $("manageSkills").innerHTML=data.skills.map(s=>`<div class="manage-row"><div class="manage-info"><strong>${esc(s.icon)} ${esc(s.name)}</strong><small>${s.progress}% · ${esc(s.rank)}</small></div><button class="mini" data-toggle="skill" data-id="${s.id}">${s.visible===false?"Afficher":"Masquer"}</button><button class="mini danger" data-delete="skill" data-id="${s.id}">Supprimer</button></div>`).join("")||'<div class="empty">Aucune compétence.</div>';
+ $("projectPlayerChoices").innerHTML=data.players.map(p=>`<label class="player-choice"><input type="checkbox" name="projectPlayers" value="${p.id}" checked> ${esc(p.name)}</label>`).join("")||'<div class="empty">Crée au moins un joueur pour pouvoir l’assigner.</div>';$("manageProjects").innerHTML=data.projects.map(p=>`<div class="manage-row"><div class="manage-info"><strong>${esc(p.name)}</strong><small>Joueurs : ${esc(playerNames(p.playerIds))} · ${data.missions.filter(m=>m.projectId==p.id).length} mission(s)</small></div><button class="mini" data-toggle="project" data-id="${p.id}">${p.visible===false?"Afficher":"Masquer"}</button><button class="mini" data-edit-project="${p.id}">Modifier</button><button class="mini danger" data-delete="project" data-id="${p.id}">Supprimer</button></div>`).join("")||'<div class="empty">Aucun projet.</div>';
+}
+let currentProjectId=null;
+function openProjectDetail(id){
+ const project=data.projects.find(p=>p.id===id);if(!project)return;
+ currentProjectId=id;
+ const missions=data.missions.filter(m=>m.projectId===id); // Include hidden missions in project detail.
+ const visibleForProgress=missions;
+ const progress=missions.length?Math.round(missions.reduce((a,m)=>a+pct(m),0)/missions.length):0;
+ $("detailProjectName").textContent=project.name;
+ $("detailProjectDesc").textContent=(project.desc||"Aucune description.")+" · Joueurs : "+playerNames(project.playerIds);
+ $("detailProjectProgress").textContent=progress+"%";
+ $("detailProjectBar").style.width=progress+"%";
+ $("detailMissionCount").textContent=missions.length+" MISSION"+(missions.length>1?"S":"");
+ $("detailMissions").innerHTML=missions.length?missions.map(m=>`<article class="mission${m.color?" has-c":""}"${m.color?` style="--mc:${esc(m.color)}"`:""}><div class="row"><div><div class="mission-title">${esc(m.name)}</div><div class="meta">${esc(m.cat||"Mission")} · Responsable : ${esc(m.owner||"À attribuer")}</div></div><span class="tag ${pct(m)>=100||m.status==="done"?"done":""}">${pct(m)>=100||m.status==="done"?"TERMINÉE":"EN COURS"}${m.visible===false?" · MASQUÉE":""}</span></div><div class="dlrow">${dlChip(m)}</div><div class="kpi"><div class="kpi-name">KPI · ${esc(m.kpi||"Progression")}</div><div class="kpi-val"><span>${esc(m.current)}</span> / ${esc(m.target)} ${esc(m.unit||"")}</div></div><div class="progressrow"><div class="bar"><div class="fill" style="width:${pct(m)}%;background:linear-gradient(90deg,#42bcb7,var(--cyan))"></div></div><span class="pct">${Math.round(pct(m))}%</span></div><div class="controls"><button class="step" data-update="mission" data-id="${m.id}" data-dir="-1">−</button><button class="step" data-update="mission" data-id="${m.id}" data-dir="1">+</button><span class="steplabel">± ${esc(m.step)} ${esc(m.unit||"unités")}</span><span class="macts"><button class="mini" data-edit-mission="${m.id}">✎ Modifier</button><button class="mini danger" data-del-mission="${m.id}">Supprimer</button></span></div></article>`).join(""):'<div class="empty">Ce projet ne contient pas encore de mission. Ajoute une mission et associe-la à ce projet dans Modifier → Missions & KPI.</div>';
+ renderComments(id);switchPage("projectDetail");
+}
+$("backToProjects").onclick=()=>switchPage("projects");
+$("detailEditProject").onclick=()=>{const p=data.projects.find(x=>x.id===currentProjectId);if(!p)return;const n=prompt("Nom du projet :",p.name);if(n===null)return;if(!n.trim())return toast("Le nom ne peut pas être vide");const d=prompt("Description :",p.desc||"");p.name=n.trim();if(d!==null)p.desc=d.trim();save();render();openProjectDetail(currentProjectId);toast("Projet modifié")};
+function switchPage(name){const tab=name==="projectDetail"?"projects":name==="memberDetail"?"players":name;document.querySelectorAll(".page").forEach(p=>p.classList.toggle("active",p.id===name));document.querySelectorAll(".navbtn").forEach(b=>b.classList.toggle("active",b.dataset.page===tab));$("scroll").scrollTop=0}
+document.querySelectorAll(".navbtn").forEach(b=>b.onclick=()=>switchPage(b.dataset.page));
+function openModal(tab){tab=tab||(editTarget!==null?"profileTab":"missionTab");document.querySelector('.tab[data-tab="profileTab"]').style.display=editTarget!==null?"":"none";$("saveProfile").style.display=editTarget!==null?"":"none";const ep=editTarget!==null?data.players.find(x=>x.id===editTarget):activePlayer();editPhoto=null;setPrev(ep.avatar,ep.emoji);$("modalTitle").textContent=editTarget!==null?"Modifier "+ep.name:"Modifier le système";document.querySelector(".tabs").style.display=editTarget!==null?"none":"flex";$("deletePlayer").style.display=editTarget!==null&&data.players.length>1?"inline-block":"none"; $("editName").value=ep.name;$("editTitle").value=ep.title||"";$("editEmoji").value=ep.emoji||"🧙";renderManage();$("backdrop").classList.add("open");activateTab(tab)}
+function activateTab(id){document.querySelectorAll(".tab").forEach(b=>b.classList.toggle("active",b.dataset.tab===id));document.querySelectorAll(".panel").forEach(p=>p.style.display=p.id===id?"block":"none")}
+function closeModal(){$("backdrop").classList.remove("open");editTarget=null}
+$("editBtn").onclick=()=>{editTarget=null;openModal()};$("closeModal").onclick=closeModal;$("closeFooter").onclick=closeModal;$("backdrop").addEventListener("click",e=>{if(e.target===$("backdrop"))closeModal()});
+document.querySelectorAll(".tab").forEach(b=>b.onclick=()=>activateTab(b.dataset.tab));
+$("saveProfile").onclick=()=>{const ap=editTarget!==null?data.players.find(x=>x.id===editTarget):activePlayer();if(!ap)return;ap.name=$("editName").value.trim()||"Joueur";ap.title=$("editTitle").value.trim()||"Aventurier";ap.emoji=$("editEmoji").value.trim()||"🧙";if(editPhoto!==null)ap.avatar=editPhoto;data.comments.forEach(c=>{if(c.playerId==ap.id)c.author=ap.name});save();render();toast("Joueur enregistré");closeModal()};
+$("addMission").onclick=()=>{const name=$("mName").value.trim(),target=Number($("mTarget").value),kpi=$("mKpi").value.trim();if(!name||!kpi||!Number.isFinite(target)||target<=0){toast("Nom, KPI et cible positive obligatoires");return}if(!data.projects.length||!$("mProject").value){toast("Crée et sélectionne un projet existant");return}const current=Math.max(0,Number($("mCurrent").value)||0);data.missions.push({id:Date.now(),name,projectId:Number($("mProject").value),owner:$("mOwner").value.trim()||"À attribuer",cat:$("mCategory").value.trim()||"Mission",kpi,unit:$("mUnit").value.trim(),current,target,step:Math.max(.01,Number($("mStep").value)||1),status:$("mStatus").value,deadline:$("mDeadline").value||"",visible:true});["mName","mOwner","mCategory","mKpi","mUnit"].forEach(id=>$(id).value="");$("mCurrent").value=0;$("mDeadline").value="";$("mTarget").value=10;save();render();toast("Mission créée")};
+$("addSkill").onclick=()=>{const name=$("sName").value.trim();if(!name){toast("Indique un nom de compétence");return}data.skills.push({id:Date.now(),name,icon:$("sIcon").value.trim()||"✦",rank:$("sRank").value.trim()||"En progression",progress:clamp($("sProgress").value),visible:true});["sName","sIcon","sRank"].forEach(id=>$(id).value="");$("sProgress").value=0;save();render();toast("Compétence ajoutée")};
+$("addProject").onclick=()=>{const name=$("pName").value.trim();if(!name){toast("Indique un nom de projet");return}const playerIds=[...document.querySelectorAll('input[name="projectPlayers"]:checked')].map(x=>Number(x.value));if(!playerIds.length){toast("Assigne au moins un joueur au projet");return}data.projects.push({id:Date.now(),name,desc:$("pDesc").value.trim(),playerIds,visible:true});$("pName").value="";$("pDesc").value="";save();render();toast("Projet créé")};
+$("addProjectOpen").onclick=()=>{switchPage("projects");openModal("projectTab")};
+$("createPlayer").onclick=()=>{
+ const name=$("newPlayerName").value.trim();
+ if(!name){toast("Indique le nom du joueur");return}
+ const p={id:Date.now(),name,title:$("newPlayerTitle").value.trim()||"Aventurier",avatar:pendingPhoto||"",emoji:$("newPlayerEmoji").value.trim()||"🧙"};
+ data.players.push(p);data.activePlayerId=p.id;
+ $("newPlayerName").value="";pendingPhoto="";$("newPlayerPhoto").value="";$("newPlayerTitle").value="";$("newPlayerEmoji").value="🧙";
+ save();render();switchPage("players");toast("Gladiateur créé");
+};
+document.addEventListener("click",e=>{
+ const u=e.target.closest("[data-update]");if(u){const arr=u.dataset.update==="mission"?data.missions:data.skills;const x=arr.find(v=>v.id==u.dataset.id);if(x){if(u.dataset.update==="mission"){x.current=Math.max(0,Number(x.current)+Number(x.step)*Number(u.dataset.dir));x.status=pct(x)>=100?"done":"active"}else{x.progress=clamp(x.progress+5*Number(u.dataset.dir))}save();render();if(currentProjectId!==null && $("projectDetail").classList.contains("active"))openProjectDetail(currentProjectId)}return}
+ const tg=e.target.closest("[data-toggle]");if(tg){const key=tg.dataset.toggle==="mission"?"missions":tg.dataset.toggle==="skill"?"skills":"projects";const x=data[key].find(v=>v.id==tg.dataset.id);if(x)x.visible=x.visible===false?true:false;save();render();return}
+ const del=e.target.closest("[data-delete]");if(del){const type=del.dataset.delete;if(!confirm("Supprimer définitivement cet élément ?"))return;if(type==="mission")data.missions=data.missions.filter(x=>x.id!=del.dataset.id);if(type==="skill")data.skills=data.skills.filter(x=>x.id!=del.dataset.id);if(type==="project"){const id=Number(del.dataset.id);data.projects=data.projects.filter(x=>x.id!==id);data.missions.forEach(m=>{if(m.projectId===id)m.projectId=null});data.comments=data.comments.filter(c=>c.projectId!==id)}save();render();return}
+ const ep=e.target.closest("[data-edit-project]");if(ep){const p=data.projects.find(x=>x.id==ep.dataset.editProject);if(p){const n=prompt("Nom du projet :",p.name);if(n===null)return;if(!n.trim()){toast("Le nom ne peut pas être vide");return}const d=prompt("Description :",p.desc||"");p.name=n.trim();if(d!==null)p.desc=d.trim();save();render();toast("Projet modifié")}return}
+ const sp=e.target.closest("[data-select-player]");if(sp){data.activePlayerId=Number(sp.dataset.selectPlayer);const p=activePlayer();data.profile={...data.profile,name:p.name,title:p.title,avatar:p.avatar,emoji:p.emoji};save();render();toast("Auteur par défaut : "+p.name);return}
+ const op=e.target.closest("[data-open-project]");if(op){openProjectDetail(Number(op.dataset.openProject));return}
+});
+document.querySelectorAll(".segbtn").forEach(b=>b.onclick=()=>{document.querySelectorAll(".segbtn").forEach(x=>x.classList.toggle("active",x===b));document.querySelectorAll(".seg-panel").forEach(p=>p.style.display=p.id===b.dataset.seg?"block":"none")});
+/* ===== Supabase ===== */
+const SB="https://xatqxxfcwoawnxzgbavb.supabase.co/rest/v1",KEY="sb_publishable_ln6dqsFsNGqtiVNBFsv5TQ_wvpFnOUe",KINDS=["players","projects","missions","skills","comments"];
+let loaded=false,remoteIds={},pushed=new Map(),editPhoto=null,pendingPhoto="",photoTarget=null;
+function setSync(s){const el=$("sync");el.className="sync "+s;el.textContent={ok:"☁ Synchronisé",busy:"☁ …",err:"☁ Hors ligne",local:"☁ Local"}[s]}
+async function sb(path,opt={}){const r=await fetch(SB+path,{...opt,headers:{apikey:KEY,"Content-Type":"application/json",...(opt.headers||{})}});if(!r.ok)throw new Error(r.status+" "+(await r.text()).slice(0,150));const t=await r.text();return t?JSON.parse(t):null}
+async function sbLoad(){setSync("busy");try{
+ const rows=await sb("/questline_items?select=kind,id,data&limit=10000");
+ if(rows.length){KINDS.forEach(k=>data[k]=rows.filter(r=>r.kind===k).map(r=>r.data));
+  if(!data.players.length)data.players=[{id:Date.now(),name:"Joueur",title:"Aventurier",avatar:"",emoji:"🧙"}];
+  if(!data.players.some(p=>p.id==data.activePlayerId))data.activePlayerId=data.players[0].id;
+  data.projects.forEach(p=>{if(!Array.isArray(p.playerIds))p.playerIds=[data.players[0].id]});
+  localStorage.setItem("questlineSaveV2",JSON.stringify(data));
+  KINDS.forEach(k=>data[k].forEach(x=>pushed.set(k+":"+x.id,JSON.stringify(x))))}
+ remoteIds=Object.fromEntries(KINDS.map(k=>[k,new Set(rows.filter(r=>r.kind===k).map(r=>Number(r.id)))]));
+ loaded=true;await sbPush()}catch(e){console.error(e);setSync("err");toast("Supabase injoignable : mode local")}}
+async function sbPush(){if(!loaded)return;setSync("busy");try{
+ const rows=[];KINDS.forEach(k=>data[k].forEach(x=>{const js=JSON.stringify(x);if(pushed.get(k+":"+x.id)!==js)rows.push({kind:k,id:x.id,data:x,_js:js})}));
+ if(rows.length){await sb("/questline_items?on_conflict=kind,id",{method:"POST",headers:{Prefer:"resolution=merge-duplicates,return=minimal"},body:JSON.stringify(rows.map(({_js,...r})=>r))});rows.forEach(r=>pushed.set(r.kind+":"+r.id,r._js))}
+ for(const k of KINDS){const cur=new Set(data[k].map(x=>x.id)),gone=[...(remoteIds[k]||[])].filter(i=>!cur.has(i));if(gone.length){await sb(`/questline_items?kind=eq.${k}&id=in.(${gone.join(",")})`,{method:"DELETE"});gone.forEach(i=>pushed.delete(k+":"+i))}remoteIds[k]=cur}
+ setSync("ok")}catch(e){console.error(e);setSync("err");toast("Synchronisation impossible")}}
+
+/* ===== Photos de profil ===== */
+function fileToAvatar(file){return new Promise((res,rej)=>{const r=new FileReader();r.onerror=rej;r.onload=()=>{const im=new Image();im.onerror=rej;im.onload=()=>{const s=256,c=document.createElement("canvas");c.width=c.height=s;const m=Math.min(im.width,im.height);c.getContext("2d").drawImage(im,(im.width-m)/2,(im.height-m)/2,m,m,0,0,s,s);res(c.toDataURL("image/jpeg",.82))};im.src=r.result};r.readAsDataURL(file)})}
+function setPrev(src,emo){$("editPreview").innerHTML=src?`<img src="${esc(src)}">`:esc(emo||"🧙")}
+$("editPhoto").onchange=async e=>{const f=e.target.files[0];if(!f)return;try{editPhoto=await fileToAvatar(f);setPrev(editPhoto)}catch{toast("Image illisible")}};
+$("editPhotoClear").onclick=()=>{editPhoto="";setPrev("",$("editEmoji").value)};
+$("newPlayerPhoto").onchange=async e=>{const f=e.target.files[0];if(!f)return;try{pendingPhoto=await fileToAvatar(f);toast("Photo prête")}catch{toast("Image illisible")}};
+document.addEventListener("click",e=>{const b=e.target.closest("[data-photo]");if(b){e.stopPropagation();photoTarget=Number(b.dataset.photo);$("photoInput").value="";$("photoInput").click()}},true);
+$("photoInput").onchange=async e=>{const f=e.target.files[0],p=data.players.find(x=>x.id===photoTarget);if(!f||!p)return;try{p.avatar=await fileToAvatar(f);save();render();toast("Photo mise à jour")}catch{toast("Image illisible")}};
+
+/* ===== Commentaires de projet ===== */
+function renderComments(id){const cs=data.comments.filter(c=>c.projectId===id).sort((a,b)=>a.ts-b.ts);$("commentCount").textContent=cs.length;{const sel=$("commentAuthor"),cur=sel.value||data.activePlayerId;sel.innerHTML=data.players.map(pl=>`<option value="${pl.id}">${esc(pl.name)}</option>`).join("");sel.value=cur;if(!sel.value)sel.value=data.activePlayerId}
+ $("commentList").innerHTML=cs.length?cs.map(c=>{const pl=data.players.find(p=>p.id==c.playerId);return `<article class="comment"><div class="cav">${pl&&pl.avatar?`<img src="${esc(pl.avatar)}">`:esc(pl?.emoji||"💬")}</div><div class="cbody"><div class="row"><strong>${esc(c.author)}</strong><span class="meta">${new Date(c.ts).toLocaleString("fr-FR",{day:"2-digit",month:"short",hour:"2-digit",minute:"2-digit"})}</span></div><p>${esc(c.text)}</p></div><button class="mini danger" data-del-comment="${c.id}" aria-label="Supprimer">×</button></article>`}).join(""):'<div class="empty">Aucun commentaire. Écris le premier ci-dessous.</div>'}
+function sendComment(){const t=$("commentText").value.trim();if(!t){toast("Écris un commentaire");return}const p=data.players.find(x=>x.id==$("commentAuthor").value)||activePlayer();data.comments.push({id:Date.now(),projectId:currentProjectId,playerId:p.id,author:p.name,text:t,ts:Date.now()});$("commentText").value="";save();renderComments(currentProjectId);renderProjects();toast("Commentaire ajouté")}
+$("addComment").onclick=sendComment;$("commentText").onkeydown=e=>{if(e.key==="Enter")sendComment()};
+document.addEventListener("click",e=>{const d=e.target.closest("[data-del-comment]");if(d&&confirm("Supprimer ce commentaire ?")){data.comments=data.comments.filter(c=>c.id!=d.dataset.delComment);save();renderComments(currentProjectId);renderProjects()}});
+
+/* ===== Animations hyper casual ===== */
+const fxl=document.createElement("div");fxl.id="fx";document.body.appendChild(fxl);
+const COL=["#22e4ff","#f43fd8","#8b5cf6","#3dffb4","#ffd35c"],ICO=["✦","★","✧","♥","⚡"],rnd=(a,b)=>a+Math.random()*(b-a);
+const buzz=v=>{try{navigator.vibrate&&navigator.vibrate(v)}catch{}};
+let AC=null,snd=localStorage.getItem("qlSnd")!=="0";
+function blip(f,d=.12,t="triangle"){if(!snd)return;try{AC=AC||new(window.AudioContext||window.webkitAudioContext)();const o=AC.createOscillator(),g=AC.createGain(),n=AC.currentTime;o.type=t;o.frequency.setValueAtTime(f,n);o.frequency.exponentialRampToValueAtTime(f*1.6,n+d);g.gain.setValueAtTime(.07,n);g.gain.exponentialRampToValueAtTime(.001,n+d);o.connect(g);g.connect(AC.destination);o.start();o.stop(n+d)}catch{}}
+const fanfare=()=>[523,659,784,1047,1319].forEach((f,i)=>setTimeout(()=>blip(f,.2,"square"),i*85));
+$("sndBtn").textContent=snd?"🔊":"🔇";$("sndBtn").onclick=()=>{snd=!snd;localStorage.setItem("qlSnd",snd?"1":"0");$("sndBtn").textContent=snd?"🔊":"🔇";blip(600)};
+function burst(x,y,n=14,big){for(let i=0;i<n;i++){const el=document.createElement("span"),c=COL[i%COL.length],ic=i%2===0;el.className="pt";if(ic){el.textContent=ICO[i%ICO.length];el.style.background="none"}else el.style.background=c;el.style.cssText+=`;left:${x}px;top:${y}px;color:${c};box-shadow:0 0 10px ${c}`;if(ic)el.style.boxShadow="none";fxl.appendChild(el);const a=rnd(0,6.283),d=rnd(big?140:60,big?340:150),dx=Math.cos(a)*d,dy=Math.sin(a)*d;el.animate([{transform:"translate(-50%,-50%) scale(.2)",opacity:1},{transform:`translate(calc(-50% + ${dx}px),calc(-50% + ${dy}px)) rotate(${rnd(0,360)}deg) scale(1.15)`,opacity:1,offset:.55},{transform:`translate(calc(-50% + ${dx*1.1}px),calc(-50% + ${dy+100}px)) scale(.3)`,opacity:0}],{duration:rnd(800,1300),easing:"cubic-bezier(.2,.8,.3,1)"}).onfinish=()=>el.remove()}}
+function rain(){for(let i=0;i<36;i++){const el=document.createElement("span"),c=COL[i%COL.length];el.className="pt";el.style.cssText+=`;left:${rnd(0,100)}vw;top:-20px;background:${c};width:${rnd(6,11)}px;height:${rnd(8,15)}px`;fxl.appendChild(el);const sw=rnd(-80,80);el.animate([{transform:"translateY(0) rotate(0)",opacity:1},{transform:`translate(${sw}px,${innerHeight+40}px) rotate(${rnd(300,900)}deg)`,opacity:1}],{duration:rnd(1600,2800),delay:rnd(0,500),easing:"cubic-bezier(.3,.1,.6,1)",fill:"backwards"}).onfinish=()=>el.remove()}}
+function floatText(x,y,t,c){const el=document.createElement("div");el.className="ft";el.textContent=t;el.style.cssText+=`;left:${x}px;top:${y}px;color:${c||"#22e4ff"}`;fxl.appendChild(el);el.animate([{transform:"translate(-50%,0) scale(.5)",opacity:0},{transform:"translate(-50%,-24px) scale(1.3)",opacity:1,offset:.25},{transform:"translate(-50%,-90px) scale(1)",opacity:0}],{duration:1100,easing:"ease-out"}).onfinish=()=>el.remove()}
+function banner(t){const el=document.createElement("div");el.className="bn";el.textContent=t;fxl.appendChild(el);el.animate([{transform:"translate(-50%,-50%) scale(.3) rotate(-8deg)",opacity:0},{transform:"translate(-50%,-50%) scale(1.15) rotate(2deg)",opacity:1,offset:.25},{transform:"translate(-50%,-50%) scale(1)",opacity:1,offset:.75},{transform:"translate(-50%,-50%) scale(1.5)",opacity:0}],{duration:1900}).onfinish=()=>el.remove()}
+function shake(){document.querySelector(".app").animate([{transform:"translate(0)"},{transform:"translate(-7px,3px)"},{transform:"translate(6px,-4px)"},{transform:"translate(-4px,2px)"},{transform:"translate(0)"}],{duration:420})}
+const num=s=>Number(String(s).replace(/\D/g,""))||0;
+function upgradeFx(P){
+ const b=[...document.querySelectorAll(`[data-update="${P.mission?"mission":"skill"}"][data-id="${P.id}"]`)].find(x=>x.offsetParent),art=b&&b.closest("article");
+ if(art){art.classList.add(P.dir>0?"pop":"nope");setTimeout(()=>art.classList.remove("pop","nope"),700);
+  const bar=art.querySelector(".fill");if(bar&&P.w){const to=bar.style.width;bar.style.width=P.w;void bar.offsetWidth;bar.style.width=to;bar.classList.add("glow")}
+  const ring=art.querySelector(".ring");if(ring&&P.p){const to=ring.style.getPropertyValue("--p");ring.style.setProperty("--p",P.p);void ring.offsetWidth;ring.style.setProperty("--p",to);ring.classList.add("spin")}}
+ ["xpBar","xpValue","avgProgress","doneCount","activeCount"].forEach(id=>{const el=$(id);el.classList.remove("bump");void el.offsetWidth;el.classList.add("bump")});
+ if(P.dir<0){blip(220,.1);buzz(10);return}
+ const d=num($("xpValue").textContent)-num(P.xp),now=P.mission?pct(P.o):P.o.progress;
+ floatText(P.x,P.y,P.mission?(d>0?`+${d} XP`:"+1 ✦"):"+5%");burst(P.x,P.y,14);blip(480+Math.round(now*4));buzz(15);
+ if(P.mission&&!P.wasMax&&now>=100){fanfare();rain();burst(innerWidth/2,innerHeight/2,18,true);banner("MISSION TERMINÉE !");shake();buzz([40,40,90])}
+ else if(!P.mission&&!P.wasMax&&now>=100){fanfare();rain();banner("MAÎTRISE MAX !");shake();buzz([40,40,90])}
+}
+document.addEventListener("click",e=>{
+ const u=e.target.closest("[data-update]");
+ if(u){const mission=u.dataset.update==="mission",o=(mission?data.missions:data.skills).find(v=>v.id==u.dataset.id);if(!o)return;const art=u.closest("article"),bar=art&&art.querySelector(".fill"),ring=art&&art.querySelector(".ring"),r=u.getBoundingClientRect();
+  const P={x:r.left+r.width/2,y:r.top,dir:Number(u.dataset.dir),mission,id:u.dataset.id,o,wasMax:mission?pct(o)>=100:o.progress>=100,w:bar?bar.style.width:"",p:ring?ring.style.getPropertyValue("--p"):"",xp:$("xpValue").textContent};
+  setTimeout(()=>upgradeFx(P),0);return}
+ const a=e.target.closest("#addMission,#addSkill,#addProject,#createPlayer,#addComment,#saveProfile");
+ if(a){const n=()=>data.missions.length+data.skills.length+data.projects.length+data.players.length+data.comments.length,n0=n(),r=a.getBoundingClientRect();setTimeout(()=>{if(n()>n0){burst(r.left+r.width/2,r.top,18);floatText(r.left+r.width/2,r.top,"✦ Nouveau !","#f43fd8");blip(660);buzz(20)}},0)}
+},true);
+/* ===== Modifier un projet ===== */
+/* ===== Deadlines ===== */
+function dlInfo(m){if(!m.deadline)return{t:"Ajouter une deadline",c:"none"};const d0=new Date();d0.setHours(0,0,0,0);const d=new Date(m.deadline+"T00:00:00"),n=Math.round((d-d0)/864e5),f=d.toLocaleDateString("fr-FR",{day:"2-digit",month:"short"});
+ if(m.status==="done"||pct(m)>=100)return{t:f,c:"done"};if(n<0)return{t:`${f} · en retard de ${-n} j`,c:"late"};if(n===0)return{t:`${f} · aujourd’hui`,c:"soon"};return{t:`${f} · J-${n}`,c:n<=3?"soon":"ok"}}
+function dlChip(m){const i=dlInfo(m);return `<label class="dl ${i.c}">📅 ${esc(i.t)}<input class="dlin" type="date" data-deadline="${m.id}" value="${esc(m.deadline||"")}" aria-label="Deadline"></label>`}
+function renderDeadlines(){const ms=data.missions.filter(m=>m.deadline&&m.visible!==false&&m.status!=="done"&&pct(m)<100&&data.projects.some(p=>p.id==m.projectId)).sort((a,b)=>a.deadline.localeCompare(b.deadline)).slice(0,4);
+ $("dlBox").style.display=ms.length?"block":"none";$("dlCount").textContent=ms.length;
+ $("dlList").innerHTML=ms.map(m=>{const i=dlInfo(m);return `<div class="dlitem" data-open-project="${m.projectId}"><div><strong>${esc(m.name)}</strong><div class="meta">${esc(projectName(m.projectId))}</div></div><span class="dl ${i.c}">📅 ${esc(i.t)}</span></div>`}).join("")}
+document.addEventListener("click",e=>{if(e.target.classList&&e.target.classList.contains("dlin")){try{e.target.showPicker&&e.target.showPicker()}catch{}}});
+document.addEventListener("change",e=>{const i=e.target.closest&&e.target.closest("[data-deadline]");if(!i)return;const m=data.missions.find(x=>x.id==i.dataset.deadline);if(!m)return;m.deadline=i.value;save();render();if(detailOpen())openProjectDetail(currentProjectId);toast(i.value?"Deadline enregistrée":"Deadline retirée")});
+let editProj=null;
+function openProjEdit(id){const p=data.projects.find(x=>x.id==id);if(!p)return;editProj=p.id;$("pEditName").value=p.name;$("pEditDesc").value=p.desc||"";$("pEditPlayers").innerHTML=data.players.map(pl=>`<label class="player-choice"><input type="checkbox" value="${pl.id}" ${(p.playerIds||[]).includes(pl.id)?"checked":""}> ${esc(pl.name)}</label>`).join("");$("pbackdrop").classList.add("open")}
+const closeProj=()=>{$("pbackdrop").classList.remove("open");editProj=null};
+const detailOpen=()=>$("projectDetail").classList.contains("active");
+$("pClose").onclick=$("pCancel").onclick=closeProj;$("pbackdrop").addEventListener("click",e=>{if(e.target===$("pbackdrop"))closeProj()});
+$("pSave").onclick=()=>{const p=data.projects.find(x=>x.id===editProj);if(!p)return;const n=$("pEditName").value.trim();if(!n){toast("Le nom ne peut pas être vide");return}const ids=[...document.querySelectorAll("#pEditPlayers input:checked")].map(x=>Number(x.value));if(!ids.length){toast("Assigne au moins un joueur");return}p.name=n;p.desc=$("pEditDesc").value.trim();p.playerIds=ids;save();render();if(detailOpen()&&currentProjectId===p.id)openProjectDetail(p.id);closeProj();toast("Projet modifié")};
+$("pDelete").onclick=()=>{const id=editProj;if(id===null||!confirm("Supprimer définitivement ce projet et ses commentaires ?"))return;data.projects=data.projects.filter(x=>x.id!==id);data.missions.forEach(m=>{if(m.projectId===id)m.projectId=null});data.comments=data.comments.filter(c=>c.projectId!==id);save();render();if(detailOpen())switchPage("projects");closeProj();toast("Projet supprimé")};
+document.addEventListener("click",e=>{const b=e.target.closest("[data-edit-project]");if(b){e.stopPropagation();openProjEdit(b.dataset.editProject)}},true);
+$("detailEditProject").onclick=()=>openProjEdit(currentProjectId);
+let editTarget=null;
+document.addEventListener("click",e=>{const b=e.target.closest("[data-edit-player]");if(b){e.stopPropagation();editTarget=Number(b.dataset.editPlayer);openModal()}},true);
+$("deletePlayer").onclick=()=>{const id=editTarget;if(id===null||data.players.length<2)return;if(!confirm("Supprimer définitivement ce joueur ?"))return;data.players=data.players.filter(x=>x.id!==id);data.projects.forEach(p=>{p.playerIds=(p.playerIds||[]).filter(i=>i!==id);if(!p.playerIds.length)p.playerIds=[data.players[0].id]});if(data.activePlayerId===id)data.activePlayerId=data.players[0].id;save();render();toast("Joueur supprimé");closeModal()};
+setSync("local");render();
+sbLoad().then(()=>{render();if(currentProjectId!==null&&$("projectDetail").classList.contains("active"))openProjectDetail(currentProjectId)});
+</script><script>
+/* ===== Questline : animations, scroll, notifications de retard ===== */
+(()=>{
+const RM=matchMedia("(prefers-reduced-motion:reduce)").matches,sc=$("scroll"),tb=document.querySelector(".topbar"),app=document.querySelector(".app");
+const T=".card:not(.hero),.mission,.skill,.project-card,.comment,.dlitem,.pagehead,.empty";
+document.addEventListener("touchstart",()=>{},{passive:true});
+
+/* compteurs animés */
+function tween(el,to,{from=0,dur=900,delay=0}={}){
+ const t=el.textContent,fmt=v=>/%/.test(t)?v+"%":(/[\s\u202f\u00a0]/.test(t)&&to>=1000?v.toLocaleString("fr-FR"):String(v));
+ cancelAnimationFrame(el._raf);if(RM||from===to){el._shown=undefined;return}
+ const t0=performance.now()+delay;
+ const step=n=>{const k=Math.min(1,Math.max(0,(n-t0)/dur)),v=Math.round(from+(to-from)*(1-Math.pow(1-k,3))),s=k>=1?t:fmt(v);el._shown=k>=1?undefined:v;el._set=s;el.textContent=s;if(k<1)el._raf=requestAnimationFrame(step)};
+ el._raf=requestAnimationFrame(step)}
+const cm=new MutationObserver(ms=>ms.forEach(r=>{const el=r.target;if(el.textContent===el._set)return;const to=num(el.textContent),from=el._shown??el._v??to;el._v=to;tween(el,to,{from,dur:700})}));
+["xpValue","xpLabel","avgProgress","doneCount","activeCount","skillCount","detailProjectProgress"].forEach(id=>{const el=$(id);el._v=num(el.textContent);cm.observe(el,{childList:true,characterData:true})});
+
+/* apparition au scroll (une seule fois par visite de page) */
+const seen=new Set();
+const io=new IntersectionObserver(es=>es.filter(e=>e.isIntersecting).forEach((e,i)=>{io.unobserve(e.target);reveal(e.target,i)}),{root:sc,threshold:.06,rootMargin:"0px 0px -4% 0px"});
+function reveal(el,i){
+ const d=Math.min(i,8)*70;el.style.transitionDelay=d+"ms";el.classList.add("in");seen.add(el._k);
+ el.querySelectorAll(".fill").forEach(f=>{if(f.closest(T)===el&&!RM)f.animate({clipPath:["inset(0 100% 0 0 round 99px)","inset(0 0% 0 0 round 99px)"]},{duration:1100,delay:d+200,easing:"cubic-bezier(.2,.9,.2,1)",fill:"backwards"})});
+ el.querySelectorAll(".pct").forEach(p=>{if(p.closest(T)===el)tween(p,num(p.textContent),{dur:1100,delay:d+200})});
+ el.querySelectorAll(".ring").forEach(r=>{if(r.closest(T)!==el)return;const p=+r.style.getPropertyValue("--p")||0,s=r.querySelector("span");if(!RM)try{r.animate({"--p":[0,p]},{duration:1200,delay:d+200,easing:"cubic-bezier(.2,1.4,.3,1)",fill:"backwards"})}catch{}if(s)tween(s,p,{dur:1200,delay:d+200})});
+ setTimeout(()=>{el.classList.remove("rv","in");el.style.transitionDelay=""},1400+d)}
+function scan(){sc.querySelectorAll(T).forEach(el=>{if(el.dataset.rv)return;el.dataset.rv=1;const pe=el.parentElement;el._k=(pe.id||pe.className)+":"+[...pe.children].indexOf(el)+":"+el.className.split(" ")[0];if(seen.has(el._k))return;el.classList.add("rv");io.observe(el)})}
+let sq=0;new MutationObserver(()=>{if(!sq)sq=requestAnimationFrame(()=>{sq=0;scan()})}).observe(sc,{childList:true,subtree:true});
+const _sp=switchPage;
+switchPage=function(n){const was=$(n).classList.contains("active");_sp(n);if(was)return;seen.clear();$(n).querySelectorAll("[data-rv]").forEach(e=>{io.unobserve(e);e.classList.remove("rv","in");delete e.dataset.rv});scan()};
+scan();
+
+/* scroll : progression, barre du haut, parallaxe du fond */
+let tk=0;sc.addEventListener("scroll",()=>{if(tk)return;tk=requestAnimationFrame(()=>{tk=0;const st=sc.scrollTop,mx=sc.scrollHeight-sc.clientHeight;tb.classList.toggle("scrolled",st>8);$("sp").style.transform="scaleX("+(mx>0?st/mx:0)+")"})},{passive:true});
+
+/* ondulation des boutons + projecteur sur les cartes */
+document.addEventListener("pointerdown",e=>{const b=e.target.closest&&e.target.closest(".btn,.step,.mini,.segbtn,.tab");if(!b)return;const r=b.getBoundingClientRect(),s=Math.max(r.width,r.height)*2,sp=document.createElement("span");sp.className="rp";sp.style.cssText=`width:${s}px;height:${s}px;left:${e.clientX-r.left-s/2}px;top:${e.clientY-r.top-s/2}px`;b.appendChild(sp);setTimeout(()=>sp.remove(),650)},{passive:true});
+let pm=0;document.addEventListener("pointermove",e=>{if(e.pointerType!=="mouse"||pm)return;const c=e.target.closest&&e.target.closest(".project-card,.mission,.skill");if(!c)return;const x=e.clientX,y=e.clientY;pm=requestAnimationFrame(()=>{pm=0;const r=c.getBoundingClientRect();c.style.setProperty("--mx",x-r.left+"px");c.style.setProperty("--my",y-r.top+"px")})},{passive:true});
+
+/* notifications flottantes : missions en retard */
+const NK="qlNotifOff",day=new Date().toDateString(),nz=$("notif"),more=$("nmore"),bell=$("bellBtn");
+let off;try{off=JSON.parse(sessionStorage.getItem(NK))}catch{}if(!off||off.d!==day)off={d:day,k:[]};
+const saveOff=()=>{try{sessionStorage.setItem(NK,JSON.stringify(off))}catch{}};
+let collapsed=false,limit=3;const known=new Set();
+const keyOf=m=>m.id+"|"+m.deadline;
+function lateList(){const d0=new Date();d0.setHours(0,0,0,0);return data.missions.filter(m=>m.deadline&&m.visible!==false&&m.status!=="done"&&pct(m)<100&&data.projects.some(p=>p.id==m.projectId)).map(m=>({m,n:Math.round((d0-new Date(m.deadline+"T00:00:00"))/864e5)})).filter(x=>x.n>0).sort((a,b)=>b.n-a.n)}
+function drop(c){c.classList.add("out");setTimeout(()=>c.remove(),430)}
+function syncNotifs(){
+ const L=lateList();bell.dataset.n=L.length;$("bellN").textContent=L.length;
+ const vis=collapsed?[]:L.filter(x=>!off.k.includes(keyOf(x.m))),show=vis.slice(0,limit),ids=new Set(show.map(x=>String(x.m.id)));
+ nz.querySelectorAll(".nt:not(.out)").forEach(c=>{if(!ids.has(c.dataset.id))drop(c)});
+ const fresh=[];
+ show.forEach(({m,n},i)=>{
+  let c=nz.querySelector(`.nt[data-id="${m.id}"]:not(.out)`);const p=Math.round(pct(m)),sub=`${esc(projectName(m.projectId))} · en retard de ${n} j · ${p}%`;
+  if(!c){c=document.createElement("div");c.className="nt";c.dataset.id=m.id;c.dataset.openProject=m.projectId;c.style.animationDelay=i*120+"ms";
+   c.innerHTML=`<span class="ico">⏰</span><div class="nbd"><b></b><small></small><div class="bar"><div class="fill"></div></div></div><button class="nx" aria-label="Ignorer cette alerte">×</button>`;
+   c.querySelector(".nx").onclick=e=>{e.stopPropagation();off.k.push(keyOf(m));saveOff();syncNotifs()};
+   nz.appendChild(c);if(!known.has(keyOf(m)))fresh.push(m)}
+  c.querySelector("b").textContent=m.name;c.querySelector("small").innerHTML=sub;c.querySelector(".fill").style.width=p+"%";known.add(keyOf(m))});
+ const extra=vis.length-show.length;more.hidden=extra<=0;more.textContent=`+ ${extra} autre${extra>1?"s":""} en retard`;
+ if(fresh.length){blip(180,.25,"sawtooth");buzz([40,60,40])}}
+more.onclick=()=>{limit=99;syncNotifs()};
+bell.onclick=()=>{collapsed=!collapsed;if(!collapsed){off.k=[];saveOff();limit=3}syncNotifs();toast(collapsed?"Alertes masquées":"Alertes affichées")};
+syncNotifs();setInterval(()=>{if(!document.hidden)syncNotifs()},3000);
+})();
+</script><script>
+(()=>{const f=$("newPlayerForm"),b=$("togglePlayerForm"),set=o=>{f.classList.toggle("open",o);b.classList.toggle("on",o);b.setAttribute("aria-expanded",o);b.textContent=o?"✕ Fermer":"＋ Ajouter un gladiateur";if(o)setTimeout(()=>{f.scrollIntoView({behavior:"smooth",block:"nearest"});const i=$("newPlayerName");i&&i.focus({preventScroll:true})},350)};
+b.onclick=()=>set(!f.classList.contains("open"));$("cancelPlayerForm").onclick=()=>set(false);
+$("createPlayer").addEventListener("click",()=>{const n=data.players.length;setTimeout(()=>{if(data.players.length>n)set(false)},50)});
+set(false)})();
+</script><script>/* ===== Page membre : bilan missions + compétences ===== */
+(()=>{
+let mid=null;
+const norm=s=>String(s||"").trim().toLowerCase(),player=()=>data.players.find(p=>p.id==mid),isOpen=()=>$("memberDetail").classList.contains("active");
+const lvl=(s,pid)=>s.levels?clamp(s.levels[pid]):clamp(s.progress);
+const held=(s,pid)=>!s.levels||s.levels[pid]!=null;
+const avgLvl=s=>{const h=data.players.filter(p=>held(s,p.id));return h.length?Math.round(h.reduce((a,p)=>a+lvl(s,p.id),0)/h.length):0};
+window.QL={held,lvl,avgLvl};
+const mine=p=>data.missions.filter(m=>m.visible!==false&&(m.ownerId!=null?m.ownerId==p.id:norm(m.owner)===norm(p.name)));
+const fin=m=>m.status==="done"||pct(m)>=100;
+const daysLeft=m=>{if(!m.deadline)return null;const d0=new Date();d0.setHours(0,0,0,0);return Math.round((new Date(m.deadline+"T00:00:00")-d0)/864e5)};
+const urg=m=>{if(fin(m))return -1e9;const rem=1-pct(m)/100,d=daysLeft(m);if(d===null)return rem*.01;if(d<0)return 1e3-d+rem;return rem/(d+1)};
+const sync=()=>{data.skills.forEach(s=>{if(s.levels)s.progress=avgLvl(s)});data.missions.sort((a,b)=>urg(b)-urg(a))};
+const _r=render;render=function(){sync();_r();if(isOpen())renderMember()};sync();
+
+function renderMember(){
+ const p=player();if(!p){switchPage("players");return}
+ const ms=mine(p),ss=data.skills.filter(s=>s.visible!==false&&held(s,p.id));
+ $("mbAvatar").innerHTML=p.avatar?`<img src="${esc(p.avatar)}" alt="">`:esc(p.emoji||"🧙");$("mbName").textContent=p.name;$("mbTitle").textContent=p.title||"Aventurier";
+ const act=ms.filter(m=>!fin(m)).length,avgM=ms.length?Math.round(ms.reduce((a,m)=>a+pct(m),0)/ms.length):0,avgS=ss.length?Math.round(ss.reduce((a,s)=>a+lvl(s,p.id),0)/ss.length):0;
+ const st=(i,l,v)=>`<div class="card stat"><i>${i}</i><div><div class="statlabel">${l}</div><div class="statval">${v}</div></div></div>`;
+ $("mbStats").innerHTML=st("⚔","Missions actives",act)+st("✓","Terminées",ms.length-act)+st("◔","Avancement missions",avgM+"%")+st("✧","Niveau compétences",avgS+"%");
+ $("mbMissions").innerHTML=ms.length?ms.map(m=>`<article class="mission${m.color?" has-c":""}"${m.color?` style="--mc:${esc(m.color)}"`:""}><div class="row"><div><div class="mission-title">${esc(m.name)}</div><div class="meta">${esc(projectName(m.projectId))} · ${esc(m.cat||"Mission")}</div></div><span class="tag ${fin(m)?"done":""}">${fin(m)?"TERMINÉE":"EN COURS"}</span></div><div class="dlrow">${dlChip(m)}</div><div class="kpi"><div class="kpi-name">KPI · ${esc(m.kpi||"Progression")}</div><div class="kpi-val"><span>${esc(m.current)}</span> / ${esc(m.target)} ${esc(m.unit||"")}</div></div><div class="progressrow"><div class="bar"><div class="fill" style="width:${pct(m)}%;background:linear-gradient(90deg,#42bcb7,var(--cyan))"></div></div><span class="pct">${Math.round(pct(m))}%</span></div><div class="controls"><button class="step" data-update="mission" data-id="${m.id}" data-dir="-1">−</button><button class="step" data-update="mission" data-id="${m.id}" data-dir="1">+</button><span class="steplabel">± ${esc(m.step)} ${esc(m.unit||"unités")}</span><span class="macts"><button class="mini" data-edit-mission="${m.id}">✎ Modifier</button><button class="mini danger" data-del-mission="${m.id}">Supprimer</button></span></div></article>`).join(""):'<div class="empty">Aucune mission pour ce membre. Crée la première avec « ＋ Mission ».</div>';
+ $("mbSkills").innerHTML=ss.length?ss.map(s=>{const v=lvl(s,p.id);return `<article class="skill${s.color?" has-c":""}"${s.color?` style="--mc:${esc(s.color)}"`:""}><div class="skill-icon">${esc(s.icon||"✦")}</div><div class="skillname">${esc(s.name)}</div><div class="meta">${esc(s.rank||"En progression")}</div><div class="ring" style="--p:${v}"><span>${v}%</span></div><div class="controls"><button class="step" data-mk="${s.id}" data-dir="-1">−</button><button class="step" data-mk="${s.id}" data-dir="1">+</button><span class="steplabel">±5%</span></div><div class="meta">Équipe : ${avgLvl(s)}%</div><div class="macts" style="margin:6px 0 0"><button class="mini" data-edit-skill="${s.id}">✎ Modifier</button><button class="mini danger" data-del-skill="${s.id}">Supprimer</button></div></article>`}).join(""):'<div class="empty">Aucune compétence. Ajoute-en une avec « ＋ Compétence ».</div>'}
+
+window.curMember=()=>mid;function openMember(id){mid=id;renderMember();switchPage("memberDetail")}
+document.addEventListener("click",e=>{
+ const c=e.target.closest("[data-open-member]");
+ if(c&&!e.target.closest("button,[data-select-player]")){openMember(Number(c.dataset.openMember));return}
+ const b=e.target.closest("[data-mk]");if(!b)return;
+ const s=data.skills.find(x=>x.id==b.dataset.mk),p=player();if(!s||!p)return;
+ if(!s.levels){s.levels={};data.players.forEach(q=>s.levels[q.id]=clamp(s.progress))}
+ const dir=Number(b.dataset.dir),old=lvl(s,p.id),nw=clamp(old+5*dir),r=b.getBoundingClientRect(),x=r.left+r.width/2,y=r.top;
+ s.levels[p.id]=nw;save();render();
+ const art=document.querySelector(`#mbSkills [data-mk="${s.id}"]`)?.closest("article");
+ if(art){art.classList.add(dir>0?"pop":"nope");setTimeout(()=>art.classList.remove("pop","nope"),700);const ring=art.querySelector(".ring");if(ring)try{ring.animate({"--p":[old,nw]},{duration:900,easing:"cubic-bezier(.2,1.4,.3,1)"})}catch{}}
+ if(dir<0||nw===old){blip(220,.1);buzz(10);return}
+ floatText(x,y,"+5%");burst(x,y,14);blip(480+nw*4);buzz(15);
+ if(old<100&&nw>=100){fanfare();rain();banner("MAÎTRISE MAX !");shake();buzz([40,40,90])}
+});
+document.addEventListener("keydown",e=>{if((e.key==="Enter"||e.key===" ")&&e.target.matches&&e.target.matches("[data-open-member]")){e.preventDefault();openMember(Number(e.target.dataset.openMember))}});
+$("backToPlayers").onclick=()=>switchPage("players");
+$("mbEdit").onclick=()=>{editTarget=mid;openModal()};
+
+/* création de missions et compétences pour ce membre */
+const show=id=>$(id).classList.add("open"),hide=id=>$(id).classList.remove("open");
+document.querySelectorAll("[data-close]").forEach(b=>b.onclick=()=>hide(b.dataset.close));
+["nmBackdrop","nsBackdrop"].forEach(id=>$(id).addEventListener("click",e=>{if(e.target===$(id))hide(id)}));
+$("mbAddMission").onclick=()=>{const p=player();if(!p)return;const ps=data.projects.filter(x=>x.visible!==false);if(!ps.length){toast("Crée d’abord un projet");return}
+ const pref=(ps.find(x=>(x.playerIds||[]).includes(p.id))||ps[0]).id;$("nmProject").innerHTML=ps.map(x=>`<option value="${x.id}" ${x.id===pref?"selected":""}>${esc(x.name)}</option>`).join("");
+ $("nmTitle").textContent="Nouvelle mission · "+p.name;["nmName","nmCat","nmKpi","nmUnit","nmDeadline"].forEach(i=>$(i).value="");$("nmCur").value=0;$("nmTarget").value=10;$("nmStep").value=1;show("nmBackdrop");setTimeout(()=>$("nmName").focus(),300)};
+$("nmSave").onclick=()=>{const p=player(),name=$("nmName").value.trim(),kpi=$("nmKpi").value.trim(),target=Number($("nmTarget").value);
+ if(!name||!kpi||!Number.isFinite(target)||target<=0){toast("Nom, KPI et cible positive obligatoires");return}
+ data.missions.push({id:Date.now(),name,projectId:Number($("nmProject").value),owner:p.name,ownerId:p.id,cat:$("nmCat").value.trim()||"Mission",kpi,unit:$("nmUnit").value.trim(),current:Math.max(0,Number($("nmCur").value)||0),target,step:Math.max(.01,Number($("nmStep").value)||1),status:"active",deadline:$("nmDeadline").value||"",visible:true});
+ save();render();hide("nmBackdrop");toast("Mission créée");const r=$("mbAddMission").getBoundingClientRect();burst(r.left+r.width/2,r.top,18);floatText(r.left+r.width/2,r.top,"✦ Nouveau !","#f43fd8");blip(660);buzz(20)};
+$("mbAddSkill").onclick=()=>{const p=player();if(!p)return;$("nsTitle").textContent="Nouvelle compétence · "+p.name;["nsName","nsIcon","nsRank"].forEach(i=>$(i).value="");$("nsLevel").value=0;show("nsBackdrop");setTimeout(()=>$("nsName").focus(),300)};
+$("nsSave").onclick=()=>{const p=player(),name=$("nsName").value.trim();if(!name){toast("Indique un nom de compétence");return}
+ const levels={};data.players.forEach(q=>levels[q.id]=q.id===p.id?clamp($("nsLevel").value):0);
+ data.skills.push({id:Date.now(),name,icon:$("nsIcon").value.trim()||"✦",rank:$("nsRank").value.trim()||"En progression",progress:0,levels,visible:true});
+ save();render();hide("nsBackdrop");toast("Compétence ajoutée");const r=$("mbAddSkill").getBoundingClientRect();burst(r.left+r.width/2,r.top,18);floatText(r.left+r.width/2,r.top,"✦ Nouveau !","#f43fd8");blip(660);buzz(20)};
+})();
+</script><script>
+(()=>{const sc=$("scroll"),io=new IntersectionObserver(es=>es.forEach(e=>e.target.classList.toggle("off",!e.isIntersecting)),{root:sc,rootMargin:"120px"});
+let q=0;const scan=()=>sc.querySelectorAll(".bar,.ring,.btn.primary").forEach(el=>{if(el._w)return;el._w=1;io.observe(el)});
+new MutationObserver(()=>{if(!q)q=requestAnimationFrame(()=>{q=0;scan()})}).observe(sc,{childList:true,subtree:true});scan();
+document.addEventListener("visibilitychange",()=>document.body.classList.toggle("idle",document.hidden))})();
+</script><script>/* ===== Modifier / supprimer missions, modifier compétences ===== */
+(()=>{
+let em=null,es=null,nmColor="#22e4ff",nsColor="#f43fd8";
+const PAL=[["#22e4ff","Cyan"],["#8b5cf6","Violet"],["#f43fd8","Magenta"],["#3dffb4","Vert"],["#ffd35c","Or"],["#ff9a3d","Orange"],["#ff4d7d","Rouge"],["#4d8bff","Bleu"]];
+function swatches(id,val,cb){const box=$(id),pal=PAL.some(x=>x[0]===val);
+ box.innerHTML=PAL.map(([c,n])=>`<button type="button" class="sw${c===val?" on":""}" data-c="${c}" style="--c:${c}" role="radio" aria-checked="${c===val}" aria-label="${n}"></button>`).join("")+`<label class="sw custom${pal?"":" on"}" style="--c:${pal?"#ffffff":val}" title="Couleur personnalisée"><input type="color" value="${pal?"#ffffff":val}" aria-label="Couleur personnalisée"></label>`;
+ const set=c=>{box.querySelectorAll(".sw").forEach(b=>{const on=b.classList.contains("custom")?!PAL.some(x=>x[0]===c):b.dataset.c===c;b.classList.toggle("on",on);b.setAttribute("aria-checked",on)});cb(c);blip(520,.08)};
+ box.querySelectorAll("button.sw").forEach(b=>b.onclick=()=>set(b.dataset.c));
+ const ci=box.querySelector("input");ci.oninput=()=>{ci.parentElement.style.setProperty("--c",ci.value);set(ci.value)}}
+const norm=s=>String(s||"").trim().toLowerCase(),cur=()=>data.players.find(x=>x.id==curMember()),show=id=>$(id).classList.add("open"),hide=id=>$(id).classList.remove("open");
+const fx=el=>{const r=el.getBoundingClientRect();burst(r.left+r.width/2,r.top,18);floatText(r.left+r.width/2,r.top,"✦ Nouveau !","#f43fd8");blip(660);buzz(20)};
+const refresh=()=>{save();render();if(detailOpen())openProjectDetail(currentProjectId)};
+
+function openMission(m){
+ const p=cur(),ps=data.projects.filter(x=>x.visible!==false);
+ if(!m&&!ps.length){toast("Crée d’abord un projet");return}
+ em=m||null;nmColor=(m&&m.color)||"#22e4ff";swatches("nmSw",nmColor,c=>nmColor=c);const pref=m?m.projectId:(ps.find(x=>p&&(x.playerIds||[]).includes(p.id))||ps[0]).id;
+ $("nmProject").innerHTML=ps.map(x=>`<option value="${x.id}" ${x.id==pref?"selected":""}>${esc(x.name)}</option>`).join("");
+ $("nmTitle").textContent=m?"Modifier la mission":"Nouvelle mission"+(p?" · "+p.name:"");
+ const v=(id,x)=>$(id).value=x;
+ v("nmName",m?m.name:"");v("nmOwner",m?(m.owner==="À attribuer"?"":m.owner||""):(p?p.name:""));v("nmCat",m?(m.cat==="Mission"?"":m.cat||""):"");v("nmDeadline",m?m.deadline||"":"");v("nmStatus",m?m.status||"active":"active");
+ v("nmKpi",m?m.kpi||"":"");v("nmUnit",m?m.unit||"":"");v("nmCur",m?m.current:0);v("nmTarget",m?m.target:10);v("nmStep",m?m.step:1);
+ $("nmSave").textContent=m?"Enregistrer":"Créer la mission";show("nmBackdrop");setTimeout(()=>$("nmName").focus(),300)}
+$("mbAddMission").onclick=()=>openMission();
+$("nmSave").onclick=()=>{
+ const name=$("nmName").value.trim(),kpi=$("nmKpi").value.trim(),target=Number($("nmTarget").value);
+ if(!name||!kpi||!Number.isFinite(target)||target<=0){toast("Nom, KPI et cible positive obligatoires");return}
+ const owner=$("nmOwner").value.trim(),cp=cur(),pl=data.players.find(x=>norm(x.name)===norm(owner)),ownerId=owner?(cp&&norm(cp.name)===norm(owner)?cp.id:pl?pl.id:undefined):undefined;
+ const f={name,projectId:Number($("nmProject").value),owner:owner||"À attribuer",cat:$("nmCat").value.trim()||"Mission",kpi,unit:$("nmUnit").value.trim(),current:Math.max(0,Number($("nmCur").value)||0),target,step:Math.max(.01,Number($("nmStep").value)||1),status:$("nmStatus").value,deadline:$("nmDeadline").value||"",color:nmColor};
+ const wasEdit=!!em;
+ if(em){Object.assign(em,f);if(ownerId!=null)em.ownerId=ownerId;else delete em.ownerId}
+ else data.missions.push({id:Date.now(),...f,ownerId,visible:true});
+ refresh();hide("nmBackdrop");toast(wasEdit?"Mission modifiée":"Mission créée");if(!wasEdit&&$("mbAddMission").offsetParent)fx($("mbAddMission"))};
+
+const ensure=s=>{if(!s.levels){s.levels={};data.players.forEach(q=>s.levels[q.id]=clamp(s.progress))}};
+function pickMode(){const nw=$("nsPick").value==="__new"||$("nsPickRow").style.display==="none";document.querySelectorAll(".nsf").forEach(f=>f.style.display=nw?"":"none")}
+function openSkill(s){
+ const p=cur();if(!p)return;es=s||null;nsColor=(s&&s.color)||"#f43fd8";swatches("nsSw",nsColor,c=>nsColor=c);
+ const avail=data.skills.filter(x=>x.visible!==false&&!QL.held(x,p.id));
+ $("nsPickRow").style.display=(!s&&avail.length)?"":"none";
+ $("nsPick").innerHTML=avail.map(x=>`<option value="${x.id}">${esc((x.icon||"✦")+" "+x.name)}</option>`).join("")+'<option value="__new">＋ Créer une nouvelle compétence</option>';
+ $("nsPick").value=avail.length?String(avail[0].id):"__new";
+ $("nsTitle").textContent=(s?"Modifier la compétence":"Ajouter une compétence")+" · "+p.name;
+ $("nsName").value=s?s.name:"";$("nsIcon").value=s?s.icon||"":"";$("nsRank").value=s?s.rank||"":"";
+ $("nsLevel").value=s?(s.levels?clamp(s.levels[p.id]):clamp(s.progress)):0;
+ $("nsLevelLabel").textContent="Niveau de "+p.name+" (%)";
+ $("nsHint").textContent=s?"Le nom, l’icône et le rang sont communs à toute l’équipe. Le niveau ne concerne que ce membre.":"Choisis une compétence déjà créée, ou crées-en une nouvelle. Elle apparaît dans le bilan de ce membre uniquement.";
+ $("nsSave").textContent=s?"Enregistrer":"Ajouter la compétence";pickMode();show("nsBackdrop")}
+$("nsPick").onchange=pickMode;
+$("mbAddSkill").onclick=()=>openSkill();
+$("nsSave").onclick=()=>{
+ const p=cur();if(!p)return;const lv=clamp($("nsLevel").value),wasEdit=!!es,pick=$("nsPick").value,useExisting=!es&&$("nsPickRow").style.display!=="none"&&pick!=="__new";
+ if(useExisting){const s=data.skills.find(x=>x.id==pick);if(!s)return;ensure(s);s.levels[p.id]=lv}
+ else{const name=$("nsName").value.trim();if(!name){toast("Indique un nom de compétence");return}
+  const icon=$("nsIcon").value.trim()||"✦",rank=$("nsRank").value.trim()||"En progression";
+  if(es){Object.assign(es,{name,icon,rank,color:nsColor});ensure(es);es.levels[p.id]=lv}
+  else data.skills.push({id:Date.now(),name,icon,rank,color:nsColor,progress:0,levels:{[p.id]:lv},visible:true})}
+ refresh();hide("nsBackdrop");toast(wasEdit?"Compétence modifiée":"Compétence ajoutée");if(!wasEdit)fx($("mbAddSkill"))};
+
+document.addEventListener("click",e=>{
+ const eb=e.target.closest("[data-edit-mission]");if(eb){const m=data.missions.find(x=>x.id==eb.dataset.editMission);if(m)openMission(m);return}
+ const es2=e.target.closest("[data-edit-skill]");if(es2){const s=data.skills.find(x=>x.id==es2.dataset.editSkill);if(s)openSkill(s);return}
+ const ds=e.target.closest("[data-del-skill]");if(ds){const s=data.skills.find(x=>x.id==ds.dataset.delSkill),p=cur();if(!s||!p||!confirm("Supprimer « "+s.name+" » du bilan de "+p.name+" ?"))return;
+  const a=ds.closest("article");if(a)a.animate([{opacity:1,transform:"none"},{opacity:0,transform:"scale(.8)"}],{duration:260,easing:"ease-in",fill:"forwards"});blip(200,.12);buzz(15);
+  setTimeout(()=>{ensure(s);delete s.levels[p.id];refresh();toast("Compétence supprimée")},a?250:0);return}
+ const d=e.target.closest("[data-del-mission]");if(!d)return;
+ const m=data.missions.find(x=>x.id==d.dataset.delMission);if(!m||!confirm("Supprimer la mission « "+m.name+" » ?"))return;
+ const art=d.closest("article");if(art)art.animate([{opacity:1,transform:"none"},{opacity:0,transform:"translateX(-40px) scale(.95)"}],{duration:280,easing:"ease-in",fill:"forwards"});
+ blip(200,.12);buzz(15);
+ setTimeout(()=>{data.missions=data.missions.filter(x=>x.id!=m.id);refresh();toast("Mission supprimée")},art?270:0)});
+})();
+</script><script>
+(()=>{const norm=x=>String(x||"").trim().toLowerCase();
+function delPlayer(id,art){
+ id=Number(id);const p=data.players.find(x=>x.id===id);if(!p)return;
+ if(data.players.length<2){toast("Garde au moins un gladiateur");return}
+ const own=m=>m.ownerId==id||(m.ownerId==null&&norm(m.owner)===norm(p.name)),n=data.missions.filter(own).length;
+ if(!confirm("Supprimer définitivement « "+p.name+" » ?"+(n?"\n"+n+" mission"+(n>1?"s seront désassignées":" sera désassignée")+" (« À attribuer »).":"")))return;
+ if(art)art.animate([{opacity:1,transform:"none"},{opacity:0,transform:"scale(.85) translateY(10px)"}],{duration:280,easing:"ease-in",fill:"forwards"});
+ blip(200,.12);buzz(20);
+ setTimeout(()=>{
+  data.missions.forEach(m=>{if(own(m)){m.owner="À attribuer";delete m.ownerId}});
+  data.skills.forEach(s=>{if(s.levels)delete s.levels[id]});
+  data.players=data.players.filter(x=>x.id!==id);
+  data.projects.forEach(pr=>{pr.playerIds=(pr.playerIds||[]).filter(i=>i!==id);if(!pr.playerIds.length)pr.playerIds=[data.players[0].id]});
+  if(data.activePlayerId===id)data.activePlayerId=data.players[0].id;
+  if($("backdrop").classList.contains("open"))closeModal();
+  if(curMember()===id)switchPage("players");
+  if(detailOpen())openProjectDetail(currentProjectId);
+  save();render();toast("Gladiateur supprimé")},art?270:0)}
+document.addEventListener("click",e=>{const b=e.target.closest("[data-del-player]");if(!b)return;e.stopPropagation();delPlayer(b.dataset.delPlayer,b.closest("article"))},true);
+$("mbDelete").onclick=()=>delPlayer(curMember());
+$("deletePlayer").onclick=()=>{const id=editTarget;if(id!==null)delPlayer(id)};
+})();
+</script></body></html>
